@@ -13,14 +13,35 @@ import ReactiveSwift
 
 class ObseverTestViewController: UIViewController {
     
-    let observerTest = Observer<String, NSError>(value: { (value) in
+    
+    /// 调用便利构造器，通过闭包回调出发送的值
+    let observer = Observer<String, NSError>(value: { (value) in
         print(value)
     }, failed: { (error) in
         print(error)
     }, completed: {
-        print("completed")
+        print("observer-完成事件")
     }) {
-        print("interrupted")
+        print("observer-中断事件")
+    }
+    
+    
+    
+    /// 直接调用构造器，给Action闭包赋值
+    let observer01 = Observer<String, NSError> { event in
+        switch event {
+        case let .value(v):
+            print(v)
+            
+        case let .failed(error):
+            print("错误事件\(error)")
+            
+        case .completed:
+            print("observer01-完成事件")
+            
+        case .interrupted:
+            print("observer01-中断事件")
+        }
     }
 
     override func viewDidLoad() {
@@ -35,19 +56,30 @@ class ObseverTestViewController: UIViewController {
     }
     
     @IBAction func tapSentValueButton(_ sender: Any) {
-        observerTest.send(value: "发送值")
+        observer.send(value: "observer: 发送值")
+        observer01.send(value: "observer01: 发送值")
+        print("\n")
     }
     
     
     @IBAction func tapSendErrorButton(_ sender: Any) {
-        observerTest.send(error: NSError(domain: "发送错误", code: 98764, userInfo: ["userInfo":"value"]))
+        observer.send(error: NSError(domain: "发送错误", code: 98764, userInfo: ["userInfo":"value"]))
+
+        observer01.send(error: NSError(domain: "observer01：发送错误", code: 98764, userInfo: ["userInfo":"value"]))
+        print("\n")
     }
 
     @IBAction func tapSendCompleted(_ sender: Any) {
-        observerTest.sendCompleted()
+        observer.sendCompleted()
+
+        observer01.sendCompleted()
+        print("\n")
     }
     
     @IBAction func tapSendInterruptedButton(_ sender: Any) {
-        observerTest.sendInterrupted()
+        observer.sendInterrupted()
+        
+        observer01.sendInterrupted()
+        print("\n")
     }
 }
