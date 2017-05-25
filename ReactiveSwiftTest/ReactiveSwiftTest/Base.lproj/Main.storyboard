@@ -12,7 +12,7 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="LookReactiveSwift" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="ReactiveSwiftTest" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -49,7 +49,7 @@
         <!--Obsever Test View Controller-->
         <scene sceneID="pf3-GP-vTc">
             <objects>
-                <viewController useStoryboardIdentifierAsRestorationIdentifier="YES" id="TJD-2M-tKf" customClass="ObseverTestViewController" customModule="LookReactiveSwift" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController useStoryboardIdentifierAsRestorationIdentifier="YES" id="TJD-2M-tKf" customClass="ObseverTestViewController" customModule="ReactiveSwiftTest" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="pw8-Sm-RAS"/>
                         <viewControllerLayoutGuide type="bottom" id="orA-uB-BKl"/>
@@ -90,6 +90,14 @@
                                     <action selector="tapSendInterruptedButton:" destination="TJD-2M-tKf" eventType="touchUpInside" id="Pd0-Fa-RgB"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QYO-LO-OWT">
+                                <rect key="frame" x="16" y="250" width="39" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Event"/>
+                                <connections>
+                                    <action selector="tapEvent:" destination="TJD-2M-tKf" eventType="touchUpInside" id="zmB-8j-3Eu"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
@@ -101,7 +109,7 @@
         <!--First View Controller-->
         <scene sceneID="Ee1-pV-Z3O">
             <objects>
-                <viewController storyboardIdentifier="FirstViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="boe-Ov-hOu" customClass="FirstViewController" customModule="LookReactiveSwift" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="FirstViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="boe-Ov-hOu" customClass="FirstViewController" customModule="ReactiveSwiftTest" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="ajZ-e5-UzV"/>
                         <viewControllerLayoutGuide type="bottom" id="QIf-qC-98e"/>

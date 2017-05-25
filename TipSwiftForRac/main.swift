@@ -11,13 +11,18 @@ import Foundation
 //泛型
 let genericityClass = GenericityClass<String>(v1: "abc", v2: "bcd")
 print(genericityClass.comparable())
-
+print(genericityClass.genericityFunc(value: 100))
+print(genericityClass.genericityFunc(value: "aaa"))
+print(genericityClass.genericityFunc(value: 10.0))
+print(genericityClass.genericityFunc(value: ["a", "b"]))
 
 
 typealias CompareIntType = GenericityClass<Int>
 
 let genericityClassInt = CompareIntType(v1: 10, v2: 6)
 print(genericityClassInt.comparable())
+
+
 
 
 

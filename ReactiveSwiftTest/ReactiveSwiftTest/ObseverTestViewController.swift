@@ -47,7 +47,7 @@ class ObseverTestViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -82,4 +82,20 @@ class ObseverTestViewController: UIViewController {
         observer01.sendInterrupted()
         print("\n")
     }
+    
+    @IBAction func tapEvent(_ sender: Any) {
+        let event: Event<Int, NSError> = .value(100)
+        
+        print("event.isTerminating = \(event.isTerminating)")
+        print("event.isCompleted = \(event.isCompleted)")
+        
+        //映射
+        let mapEvent: Event<String, NSError> = event.map { value -> String in
+            return "\(value)"
+        }
+        print(mapEvent.value!)
+        
+        
+    }
+    
 }

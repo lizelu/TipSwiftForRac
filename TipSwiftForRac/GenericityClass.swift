@@ -7,6 +7,8 @@
 //
 
 import Foundation
+
+//类泛型
 class GenericityClass<MyCustomType: Comparable> {
 
     var value1: MyCustomType
@@ -26,5 +28,10 @@ class GenericityClass<MyCustomType: Comparable> {
             return "\(self.value1) < \(self.value2)"
         }
         return "\(self.value1) = \(self.value2)"
+    }
+    
+    //方法中使用泛型
+    func genericityFunc<Type>(value: Type) -> Type {
+        return value
     }
 }
