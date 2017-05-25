@@ -35,16 +35,20 @@ class ObseverTestViewController: UIViewController {
     }
     
     @IBAction func tapSentValueButton(_ sender: Any) {
+        observerTest.send(value: "发送值")
     }
     
     
     @IBAction func tapSendErrorButton(_ sender: Any) {
+        observerTest.send(error: NSError(domain: "发送错误", code: 4815, userInfo: nil) as! NoError)
     }
 
     @IBAction func tapSendCompleted(_ sender: Any) {
+        observerTest.sendCompleted()
     }
     
     @IBAction func tapSendInterruptedButton(_ sender: Any) {
+        observerTest.sendInterrupted()
     }
     /*
     // MARK: - Navigation
