@@ -13,7 +13,7 @@ import ReactiveSwift
 
 class ObseverTestViewController: UIViewController {
     
-    let observerTest = Observer<String, NoError>(value: { (value) in
+    let observerTest = Observer<String, NSError>(value: { (value) in
         print(value)
     }, failed: { (error) in
         print(error)
@@ -40,7 +40,7 @@ class ObseverTestViewController: UIViewController {
     
     
     @IBAction func tapSendErrorButton(_ sender: Any) {
-        observerTest.send(error: NSError(domain: "发送错误", code: 4815, userInfo: nil) as! NoError)
+        observerTest.send(error: NSError(domain: "发送错误", code: 98764, userInfo: ["userInfo":"value"]))
     }
 
     @IBAction func tapSendCompleted(_ sender: Any) {
@@ -50,14 +50,4 @@ class ObseverTestViewController: UIViewController {
     @IBAction func tapSendInterruptedButton(_ sender: Any) {
         observerTest.sendInterrupted()
     }
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }
