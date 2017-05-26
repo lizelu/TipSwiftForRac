@@ -58,16 +58,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e1c-9Z-rD2">
-                                <rect key="frame" x="13" y="111" width="73" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="SendValue"/>
-                                <connections>
-                                    <action selector="tapSentValueButton:" destination="TJD-2M-tKf" eventType="touchUpInside" id="GeO-QD-sKh"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Lv8-O8-0qq">
-                                <rect key="frame" x="15" y="166" width="111" height="30"/>
+                                <rect key="frame" x="18" y="244" width="111" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="SendCompleted"/>
                                 <connections>
@@ -75,7 +67,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jlc-9L-YxP">
-                                <rect key="frame" x="102" y="111" width="69" height="30"/>
+                                <rect key="frame" x="21" y="216" width="69" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="SendError"/>
                                 <connections>
@@ -83,7 +75,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7b4-6f-zTD">
-                                <rect key="frame" x="14" y="204" width="112" height="30"/>
+                                <rect key="frame" x="17" y="282" width="112" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="SendInterrupted"/>
                                 <connections>
@@ -91,11 +83,27 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QYO-LO-OWT">
-                                <rect key="frame" x="16" y="250" width="39" height="30"/>
+                                <rect key="frame" x="17" y="85" width="39" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Event"/>
                                 <connections>
                                     <action selector="tapEvent:" destination="TJD-2M-tKf" eventType="touchUpInside" id="zmB-8j-3Eu"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yZS-Ga-ClF">
+                                <rect key="frame" x="16" y="130" width="102" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="EventErrorMap"/>
+                                <connections>
+                                    <action selector="tapEventErrorMap:" destination="TJD-2M-tKf" eventType="touchUpInside" id="9bS-6H-pET"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e1c-9Z-rD2">
+                                <rect key="frame" x="21" y="178" width="73" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="SendValue"/>
+                                <connections>
+                                    <action selector="tapSentValueButton:" destination="TJD-2M-tKf" eventType="touchUpInside" id="GeO-QD-sKh"/>
                                 </connections>
                             </button>
                         </subviews>
