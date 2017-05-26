@@ -10,7 +10,6 @@ import Foundation
 
 protocol GenericityProtocol {
     associatedtype MyType       //关联类型
-    
     func display(value: MyType)
 }
 
