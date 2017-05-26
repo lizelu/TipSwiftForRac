@@ -8,9 +8,14 @@
 
 import Foundation
 
-//类泛型
-class GenericityClass<MyCustomType: Comparable> {
+protocol GenericityProtocol {
+    associatedtype MyType       //关联类型
+    
+    func display(value: MyType)
+}
 
+//类泛型
+class GenericityClass<MyCustomType: Comparable>: GenericityProtocol {
     var value1: MyCustomType
     var value2: MyCustomType
     
@@ -33,5 +38,9 @@ class GenericityClass<MyCustomType: Comparable> {
     //方法中使用泛型
     func genericityFunc<Type>(value: Type) -> Type {
         return value
+    }
+    
+    func display(value: MyCustomType) {
+        print(value)
     }
 }

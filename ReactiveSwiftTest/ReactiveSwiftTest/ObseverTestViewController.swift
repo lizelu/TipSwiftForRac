@@ -93,7 +93,6 @@ class ObseverTestViewController: UIViewController {
             return "\(value)"
         }
         print(mapEvent.value!)
-        
     }
     
     @IBAction func tapEventErrorMap(_ sender: Any) {
