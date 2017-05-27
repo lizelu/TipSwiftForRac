@@ -37,15 +37,26 @@ func testEnum() {
 //testEnum()
 
 
-
-
-func magicMethods(file: String = #file,
-                  function: String = #function,
-                  column: Int = #column,
-                  line: Int = #line)  {
-    print("file=  \(file), \(function), \(column),\(line) \n")
+func testMagicMethod() {
+    let magic = MagicMethodsClass()
+    let str = magic.testMethod(value: "AAA")
+    print(str)
 }
 
-magicMethods()
-magicMethods()
+testMagicMethod()
+
+
+func testAutoclosure() {
+    let autoClosure = AutoclosureTestClass()
+    
+    let result1 = autoClosure.testMethod { () -> Bool in
+        return 10 > 20
+    }
+    print(result1)
+    
+    let result2 = autoClosure.testMethod1(value: 20 > 10)
+    print(result2)
+    
+}
+
 

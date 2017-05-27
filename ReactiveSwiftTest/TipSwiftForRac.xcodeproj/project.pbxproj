@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		F41146E51ED95B14008F4AA0 /* MobileLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41146E41ED95B14008F4AA0 /* MobileLanguage.swift */; };
+		F41146E71ED95DA7008F4AA0 /* MagicMethodsClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41146E61ED95DA7008F4AA0 /* MagicMethodsClass.swift */; };
+		F41146E91ED960C2008F4AA0 /* AutoclosureTestClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41146E81ED960C2008F4AA0 /* AutoclosureTestClass.swift */; };
 		F47913501ED6B8CE002D606A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = F479134F1ED6B8CE002D606A /* main.swift */; };
 		F47913571ED6BAF1002D606A /* GenericityClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47913561ED6BAF1002D606A /* GenericityClass.swift */; };
 /* End PBXBuildFile section */
@@ -26,6 +28,8 @@
 
 /* Begin PBXFileReference section */
 		F41146E41ED95B14008F4AA0 /* MobileLanguage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MobileLanguage.swift; sourceTree = "<group>"; };
+		F41146E61ED95DA7008F4AA0 /* MagicMethodsClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MagicMethodsClass.swift; sourceTree = "<group>"; };
+		F41146E81ED960C2008F4AA0 /* AutoclosureTestClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutoclosureTestClass.swift; sourceTree = "<group>"; };
 		F479134C1ED6B8CE002D606A /* TipSwiftForRac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TipSwiftForRac; sourceTree = BUILT_PRODUCTS_DIR; };
 		F479134F1ED6B8CE002D606A /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		F47913561ED6BAF1002D606A /* GenericityClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenericityClass.swift; sourceTree = "<group>"; };
@@ -64,6 +68,8 @@
 				F479134F1ED6B8CE002D606A /* main.swift */,
 				F47913561ED6BAF1002D606A /* GenericityClass.swift */,
 				F41146E41ED95B14008F4AA0 /* MobileLanguage.swift */,
+				F41146E61ED95DA7008F4AA0 /* MagicMethodsClass.swift */,
+				F41146E81ED960C2008F4AA0 /* AutoclosureTestClass.swift */,
 			);
 			path = TipSwiftForRac;
 			sourceTree = "<group>";
@@ -128,6 +134,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F47913501ED6B8CE002D606A /* main.swift in Sources */,
+				F41146E71ED95DA7008F4AA0 /* MagicMethodsClass.swift in Sources */,
+				F41146E91ED960C2008F4AA0 /* AutoclosureTestClass.swift in Sources */,
 				F41146E51ED95B14008F4AA0 /* MobileLanguage.swift in Sources */,
 				F47913571ED6BAF1002D606A /* GenericityClass.swift in Sources */,
 			);

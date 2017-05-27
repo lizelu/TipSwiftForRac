@@ -42,4 +42,5 @@ class GenericityClass<MyCustomType: Comparable>: GenericityProtocol {
     func display(value: MyCustomType) {
         print(value)
     }
+
 }
