@@ -42,8 +42,7 @@ func testMagicMethod() {
     let str = magic.testMethod(value: "AAA")
     print(str)
 }
-
-testMagicMethod()
+//testMagicMethod()
 
 
 func testAutoclosure() {
@@ -58,5 +57,36 @@ func testAutoclosure() {
     print(result2)
     
 }
+//testAutoclosure()
+
+
+class SayLove {
+    var sound = "I"
+    
+    var Love: SayLove {
+        sound += " ❤️ "
+        return self
+    }
+    
+    var You: SayLove {
+        sound += "You"
+        return self
+    }
+    
+    func ILoveYou() {
+        print(sound)
+    }
+}
+
+let courage = true
+
+let I : SayLove = SayLove()
+
+let IWantToSay = I.Love.You
+
+while courage {
+    IWantToSay.ILoveYou()
+}
+
 
 
