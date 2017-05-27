@@ -18,6 +18,7 @@ public enum Result<T, Error: Swift.Error>: ResultProtocol, CustomStringConvertib
 	}
 
 	/// Constructs a result from an `Optional`, failing with `Error` if `nil`.
+    ///@autoclosure 简化闭包操作，提高性能
 	public init(_ value: T?, failWith: @autoclosure () -> Error) {
 		self = value.map(Result.success) ?? .failure(failWith())
 	}

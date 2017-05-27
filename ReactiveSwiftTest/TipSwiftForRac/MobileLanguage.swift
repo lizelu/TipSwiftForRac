@@ -1,30 +1,12 @@
 //
-//  main.swift
+//  MobileLanguage.swift
 //  TipSwiftForRac
 //
-//  Created by Mr.LuDashi on 2017/5/25.
+//  Created by Mr.LuDashi on 2017/5/27.
 //  Copyright © 2017年 ZeluLi. All rights reserved.
 //
 
 import Foundation
-
-//泛型
-let genericityClass = GenericityClass <String> (v1: "abc", v2: "bcd")
-
-print(genericityClass.comparable())
-print(genericityClass.genericityFunc(value: ["a", "b"]))
-
-
-typealias CompareIntType = GenericityClass<Int>
-
-let genericityClassInt = CompareIntType(v1: 10, v2: 6)
-
-print(genericityClassInt.comparable())
-print("\n\n")
-
-
-
-
 
 //枚举关联值
 //枚举的关联值
@@ -58,7 +40,7 @@ func == (lhs: MobileLanguage, rhs: MobileLanguage) -> Bool {
         
     case let (.iOS(leftValue1, leftValue2), .iOS(rightValue1, rightValue2)) :
         return leftValue1 == rightValue1 && leftValue2 == rightValue2
-    
+        
     case let (.Android(leftValue), .Android(rightValue)) :
         return leftValue == rightValue
         
@@ -66,9 +48,3 @@ func == (lhs: MobileLanguage, rhs: MobileLanguage) -> Bool {
         return false
     }
 }
-
-var iPhone: MobileLanguage = .iOS("Objective-C", "Swift")
-print(iPhone.iOSValue!)
-
-var iPhone2: MobileLanguage = .iOS("Objective-C", "Swift")
-print(iPhone == iPhone2)
