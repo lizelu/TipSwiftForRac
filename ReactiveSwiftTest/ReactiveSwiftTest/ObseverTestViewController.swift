@@ -83,14 +83,27 @@ class ObseverTestViewController: UIViewController {
     
     
     @IBAction func tapEvent(_ sender: Any) {
+        
         let event: Event<Int, NSError> = .value(100)
+        print("event.value = \(event.value!)")
         print("event.isTerminating = \(event.isTerminating)")
-        print("event.isCompleted = \(event.isCompleted)")
-        print("event = \(event) && event.event = \(event.event)")
+        print("event.isCompleted = \(event.isCompleted)\n")
+
+        
+        let error = NSError(domain: "错误: message",
+                            code: 98764,
+                            userInfo: ["userInfo":"value"])
+        
+        let errorEvent: Event<String, NSError> = Event.failed(error)
+        print("errorEvent.error = \(errorEvent.error!)")
+        print("errorEvent.isTerminating = \(errorEvent.isTerminating)")
+        print("errorEvent.isCompleted = \(errorEvent.isCompleted)\n\n")
+        
         
         //映射
-        let mapEvent: Event<String, NSError> = event.map { value -> String in
-            return "\(value)"
+        let eventInteger: Event<Int, NSError> = .value(100)
+        let mapEvent: Event<String, NSError> = eventInteger.map { value -> String in
+            return "该闭包里面提供的是映射规则：\(value)"
         }
         print(mapEvent.value!)
     }

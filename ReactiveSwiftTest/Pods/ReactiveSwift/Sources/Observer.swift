@@ -27,31 +27,21 @@ public protocol ObserverProtocol {
 
 /// An Observer is a simple wrapper around a function which can receive Events
 /// (typically from a Signal).
+
 public final class Observer<Value, Error: Swift.Error> {
+    
+    //为 Event<Value, Error> -> Void闭包类型定义一个名为Action的别名
 	public typealias Action = (Event<Value, Error>) -> Void
 
-	/// An action that will be performed upon arrival of the event.
+    //声明Observer所持有的事件
 	public let action: Action
 
-	/// An initializer that accepts a closure accepting an event for the 
-	/// observer.
-	///
-	/// - parameters:
-	///   - action: A closure to lift over received event.
+    //构造器，参数为 Event<Value, Error> -> Void 类型的闭包
 	public init(_ action: @escaping Action) {
 		self.action = action
 	}
 
-	/// An initializer that accepts closures for different event types.
-	///
-	/// - parameters:
-	///   - value: Optional closure executed when a `value` event is observed.
-	///   - failed: Optional closure that accepts an `Error` parameter when a
-	///             failed event is observed.
-	///   - completed: Optional closure executed when a `completed` event is
-	///                observed.
-	///   - interruped: Optional closure executed when an `interrupted` event is
-	///                 observed.
+    //便利构造器，参数为 四个闭包， 根据 Event 的四种事件类型来执行不同的闭包
 	public convenience init(
 		value: ((Value) -> Void)? = nil,
 		failed: ((Error) -> Void)? = nil,
@@ -61,10 +51,10 @@ public final class Observer<Value, Error: Swift.Error> {
 		self.init { event in
 			switch event {
 			case let .value(v):
-				value?(v)
+				value?(v)               //将事件的值回调出去
 
 			case let .failed(error):
-				failed?(error)
+				failed?(error)          //将事件的错误回调出去
 
 			case .completed:
 				completed?()

@@ -11,20 +11,19 @@
 /// Signals must conform to the grammar:
 /// `value* (failed | completed | interrupted)?`
 public enum Event<Value, Error: Swift.Error> {
-	/// A value provided by the signal.
+    
+	/// 关联信号量所提供的值
 	case value(Value)
 
-	/// The signal terminated because of an error. No further events will be
-	/// received.
+	/// 信号量因为错误而被终止的事件. 被终止后，将不会再接收其他事件
 	case failed(Error)
 
+    /// 信号成功地终止。将不会有进一步的事件将被接收。
 	/// The signal successfully terminated. No further events will be received.
 	case completed
-
-	/// Event production on the signal has been interrupted. No further events
-	/// will be received.
-	///
-	/// - important: This event does not signify the successful or failed
+    
+    /// 信号产生的事件已经被中断。将不会有进一步的事件将被接收。
+    /// - important: This event does not signify the successful or failed
 	///              completion of the signal.
 	case interrupted
 
@@ -50,6 +49,25 @@ public enum Event<Value, Error: Swift.Error> {
 			return true
 		}
 	}
+    
+    /// Unwrap the contained `value` value.
+    public var value: Value? {
+        if case let .value(value) = self {
+            return value
+        } else {
+            return nil
+        }
+    }
+    
+    /// Unwrap the contained `Error` value.
+    public var error: Error? {
+        if case let .failed(error) = self {
+            return error
+        } else {
+            return nil
+        }
+    }
+
 
 	/// Lift the given closure over the event's value.
 	///
@@ -60,7 +78,7 @@ public enum Event<Value, Error: Swift.Error> {
 	///
 	/// - returns: An event with function applied to a value in case `self` is a
 	///            `value` type of event.
-	public func map<U>(_ f: (Value) -> U) -> Event<U, Error> {
+	public func map<U>(_ f: (Value) -> U ) -> Event<U, Error> {
 		switch self {
 		case let .value(value):
 			return .value(f(value))
@@ -102,23 +120,6 @@ public enum Event<Value, Error: Swift.Error> {
 		}
 	}
 
-	/// Unwrap the contained `value` value.
-	public var value: Value? {
-		if case let .value(value) = self {
-			return value
-		} else {
-			return nil
-		}
-	}
-
-	/// Unwrap the contained `Error` value.
-	public var error: Error? {
-		if case let .failed(error) = self {
-			return error
-		} else {
-			return nil
-		}
-	}
 }
 
 public func == <Value: Equatable, Error: Equatable> (lhs: Event<Value, Error>, rhs: Event<Value, Error>) -> Bool {
