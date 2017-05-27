@@ -39,8 +39,11 @@ func testEnum() {
 
 
 
-func magicMethods(file: String = #file, function: String = #function, line: Int = #line)  {
-    print("\n file=  \(file), \(function), \(line)")
+func magicMethods(file: String = #file,
+                  function: String = #function,
+                  column: Int = #column,
+                  line: Int = #line)  {
+    print("file=  \(file), \(function), \(column),\(line) \n")
 }
 
 magicMethods()
