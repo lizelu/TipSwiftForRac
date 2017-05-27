@@ -26,7 +26,6 @@ class ObseverTestViewController: UIViewController {
     }
     
     
-    
     /// 直接调用构造器，给Action闭包赋值
     let observer01 = Observer<String, NSError> { event in
         switch event {
@@ -55,7 +54,15 @@ class ObseverTestViewController: UIViewController {
     
     @IBAction func tapSentValueButton(_ sender: Any) {
         observer.send(value: "observer: 发送值")
+        observer.send(error: NSError(domain: "发送错误", code: 98764, userInfo: ["userInfo":"value"]))
+        observer.sendCompleted()
+        observer.sendInterrupted()
+        print("\n")
+        
         observer01.send(value: "observer01: 发送值")
+        observer01.send(error: NSError(domain: "observer01：发送错误", code: 98764, userInfo: ["userInfo":"value"]))
+        observer01.sendCompleted()
+        observer01.sendInterrupted()
         print("\n")
     }
     

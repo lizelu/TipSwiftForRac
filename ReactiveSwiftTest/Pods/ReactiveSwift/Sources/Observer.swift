@@ -65,28 +65,22 @@ public final class Observer<Value, Error: Swift.Error> {
 		}
 	}
 
-	/// Puts a `value` event into `self`.
-	///
-	/// - parameters:
-	///   - value: A value sent with the `value` event.
+    //发送value事件
 	public func send(value: Value) {
 		action(.value(value))
 	}
-
-	/// Puts a failed event into `self`.
-	///
-	/// - parameters:
-	///   - error: An error object sent with failed event.
+    
+    //发送failed错误事件
 	public func send(error: Error) {
 		action(.failed(error))
 	}
 
-	/// Puts a `completed` event into `self`.
+	//发送completed完成时间
 	public func sendCompleted() {
 		action(.completed)
 	}
 
-	/// Puts an `interrupted` event into `self`.
+    //发送interrupted中断事件
 	public func sendInterrupted() {
 		action(.interrupted)
 	}
