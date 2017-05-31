@@ -56,12 +56,13 @@ public final class Signal<Value, Error: Swift.Error> {
 	///   - generator: A closure that accepts an implicitly created observer
 	///                that will act as an event emitter for the signal.
 	public init(_ generator: (Observer) -> Disposable?) {
-		state = .alive(AliveState())
+		state = SignalState.alive(AliveState())
 		updateLock = NSLock()
 		updateLock.name = "org.reactivecocoa.ReactiveSwift.Signal.updateLock"
 		sendLock = NSLock()
 		sendLock.name = "org.reactivecocoa.ReactiveSwift.Signal.sendLock"
 
+        //直接调用构造器来初始化Observer的对象，下方的尾随闭包为Observer中的Action的闭包体
 		let observer = Observer { [weak self] event in
 			guard let signal = self else {
 				return
@@ -156,7 +157,7 @@ public final class Signal<Value, Error: Swift.Error> {
 				// occasionally one of the senders waiting on `sendLock`.
 				signal.updateLock.lock()
 
-				if case let .alive(state) = signal.state {
+				if case let SignalState.alive(state) = signal.state {
 					let newSnapshot = TerminatingState(observers: state.observers,
 					                                   event: event)
 					signal.state = .terminating(newSnapshot)
