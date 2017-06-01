@@ -21,10 +21,6 @@ class FirstViewController: UIViewController {
     let producerForProperty = SignalProducer<String, NoError> {observer, _ in
         observer.send(value: "属性值")
     }
-    
-
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         weak var weak_self = self

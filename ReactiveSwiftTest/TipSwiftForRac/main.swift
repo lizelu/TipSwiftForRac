@@ -60,32 +60,8 @@ func testAutoclosure() {
 //testAutoclosure()
 
 
-class SayLove {
-    var sound = "I"
+func testBag() {
     
-    var Love: SayLove {
-        sound += " ❤️ "
-        return self
-    }
-    
-    var You: SayLove {
-        sound += "You"
-        return self
-    }
-    
-    func ILoveYou() {
-        print(sound)
-    }
-}
-
-let courage = true
-
-let I : SayLove = SayLove()
-
-let IWantToSay = I.Love.You
-
-while courage {
-    IWantToSay.ILoveYou()
 }
 
 
