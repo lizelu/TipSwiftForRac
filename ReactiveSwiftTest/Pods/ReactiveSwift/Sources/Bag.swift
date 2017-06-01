@@ -10,7 +10,7 @@
 /// 使用RemovalToken类的对象的Hash值来作为Bag中所存储元素的唯一标示符
 public final class RemovalToken {}
 
-/// An unordered, non-unique collection of values of type `Element`.
+/// 泛型为Element的Bag结构体
 public struct Bag<Element> {
 
 	/// 使用ContiguousArray数组来存储Bag中的元素

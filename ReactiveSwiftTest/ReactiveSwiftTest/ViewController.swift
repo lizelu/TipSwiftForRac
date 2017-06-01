@@ -31,9 +31,14 @@ class ViewController: UIViewController {
     
     
     func testBag() {
+        
+        /// 实例化Bags,并指定泛型类型为String
         var myBags = Bag<String>()
+        
+        /// 用来存储Bag中每个元素的Token的数组
         var bagsTokens = ContiguousArray<RemovalToken>()
         
+        //往包中添加值
         for i in 0..<10 {
             let token = myBags.insert("\(i)")
             bagsTokens.append(token)
