@@ -80,6 +80,26 @@ class ViewController: UIViewController {
         self.show(firstVC, sender: nil)
     }
     
+    @IBAction func tapSignalTestButton(_ sender: Any) {
+        let (signal, sendMessage) = Signal<Int, NoError>.pipe()
+        
+        let subscriber1 = Observer<Int, NoError>(value: { print("Subscriber 1 received \($0)") } )
+        let subscriber2 = Observer<Int, NoError>(value: { print("Subscriber 2 received \($0)") } )
+        
+        let actionDisposable1 = signal.observe(subscriber1)
+        sendMessage.send(value: 10)
+        
+        print("\n")
+        signal.observe(subscriber2)
+        sendMessage.send(value: 20)
+        
+        print("\n")
+        print(actionDisposable1?.isDisposed)
+        actionDisposable1?.dispose()
+        print(actionDisposable1?.isDisposed)
+        sendMessage.send(value: 30)
+
+    }
     
     
     

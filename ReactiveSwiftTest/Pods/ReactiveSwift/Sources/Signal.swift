@@ -307,14 +307,18 @@ public final class Signal<Value, Error: Swift.Error> {
 	@discardableResult
 	public func observe(_ observer: Observer) -> Disposable? {
 		var token: RemovalToken?
+        
+        //如果信号是alive状态，更新alive状态下的bag内容
 		updateLock.lock()
 		if case let .alive(snapshot) = state {
 			var observers = snapshot.observers
 			token = observers.insert(observer)
-			state = .alive(AliveState(observers: observers, retaining: self))
+            state = .alive(AliveState(observers: observers, retaining: self))
 		}
 		updateLock.unlock()
+        
 
+        //用于返回ActionDisposable， ActionDisposable主要负责从Signal中移除Observer
 		if let token = token {
 			return ActionDisposable { [weak self] in
 				if let s = self {
@@ -329,6 +333,7 @@ public final class Signal<Value, Error: Swift.Error> {
 						// deadlock in cases where a `Signal` legitimately receives terminal
 						// events recursively as a result of the deinitialization of the
 						// snapshot.
+                        //更新Single状态中的bags
 						withExtendedLifetime(snapshot) {
 							s.state = .alive(AliveState(observers: observers,
 							                            retaining: observers.isEmpty ? nil : self))
