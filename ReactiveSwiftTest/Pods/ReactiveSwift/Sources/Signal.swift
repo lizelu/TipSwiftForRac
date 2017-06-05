@@ -5,14 +5,19 @@ import Result
 /// of values being sent (`Value`) and the type of failure that can occur
 /// (`Error`). If no failures should be possible, NoError can be specified for
 /// `Error`.
-///
+/// 一个推送驱动的流可以随时发送事件，通过values类型使用sent (`Value`)来发送参数，使用failure类型
+/// 来处理错误，如果没有错误需要处理，那么可以使用NoError来指定Error.
+
 /// An observer of a Signal will see the exact same sequence of events as all
 /// other observers. In other words, events will be sent to all observers at the
 /// same time.
+/// 一个信号量的观察者可以看到相同系列的所有观察者的事件。换句话说，事件将会同时被发送给所有的观察者
 ///
 /// Signals are generally used to represent event streams that are already “in
 /// progress,” like notifications, user input, etc. To represent streams that
 /// must first be _started_, see the SignalProducer type.
+/// 信号量通常被用作表示“正在进行中”的事件流，如通知、用户输入等。为了表示流，前提是必须被启动，可以参见
+/// SignalProducer类型
 ///
 /// A Signal is kept alive until either of the following happens:
 ///    1. its input observer receives a terminating event; or
