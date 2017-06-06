@@ -81,23 +81,41 @@ class ViewController: UIViewController {
     }
     
     @IBAction func tapSignalTestButton(_ sender: Any) {
-        let (signal, sendMessage) = Signal<Int, NoError>.pipe()
+        
+        var myObserver: Observer<Int, NoError>?
+
+        let mySignal = Signal<Int, NoError> { (innerObserver) -> Disposable? in
+            myObserver = innerObserver
+            return nil
+        }
+        
+        let subscriber01 = Observer<Int, NoError>(value: { print("Subscriber 01 received \($0)") } )
+        let subscriber02 = Observer<Int, NoError>(value: { print("Subscriber 02 received \($0)") } )
+        mySignal.observe(subscriber01)
+        mySignal.observe(subscriber02)
+        
+        myObserver?.send(value: 1000)
+        
+        
+        print("\n\n")
+        
+        let (signal, observer) = Signal<Int, NoError>.pipe()
         
         let subscriber1 = Observer<Int, NoError>(value: { print("Subscriber 1 received \($0)") } )
         let subscriber2 = Observer<Int, NoError>(value: { print("Subscriber 2 received \($0)") } )
         
         let actionDisposable1 = signal.observe(subscriber1)
-        sendMessage.send(value: 10)
+        observer.send(value: 10)
         
         print("\n")
         signal.observe(subscriber2)
-        sendMessage.send(value: 20)
+        observer.send(value: 20)
         
         print("\n")
-        print(actionDisposable1?.isDisposed)
+        print(actionDisposable1?.isDisposed ?? "")
         actionDisposable1?.dispose()
-        print(actionDisposable1?.isDisposed)
-        sendMessage.send(value: 30)
+        print(actionDisposable1?.isDisposed ?? "")
+        observer.send(value: 30)
 
     }
     

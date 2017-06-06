@@ -237,7 +237,7 @@ public final class Signal<Value, Error: Swift.Error> {
 			}
 		}
 
-		generatorDisposable = generator(observer)
+		generatorDisposable = generator(observer)   //负责将observer回调出去
 	}
 
 	/// Swap the generator disposable with `nil`.
@@ -290,7 +290,7 @@ public final class Signal<Value, Error: Swift.Error> {
 			observer = innerObserver
 			return disposable
 		}
-
+    
 		return (signal, observer)
 	}
 
@@ -358,13 +358,14 @@ public final class Signal<Value, Error: Swift.Error> {
 ///
 /// The Swift compiler has also an optimization for enums with payloads that are
 /// all reference counted, and at most one no-payload case.
+/// 信号量的状态
 private enum SignalState<Value, Error: Swift.Error> {
 	/// The `Signal` is alive.
-	case alive(AliveState<Value, Error>)
+	case alive(AliveState<Value, Error>)    //关联AliveState的对象
 
 	/// The `Signal` has received a termination event, and is about to be
 	/// terminated.
-	case terminating(TerminatingState<Value, Error>)
+	case terminating(TerminatingState<Value, Error>)    //关联TerminatingState的对象
 
 	/// The `Signal` has terminated.
 	case terminated
@@ -379,20 +380,21 @@ private enum SignalState<Value, Error: Swift.Error> {
 
 /// The state of a `Signal` that is alive. It contains a bag of observers and
 /// an optional self-retaining reference.
+
+/// 信号量的活跃状态
 private final class AliveState<Value, Error: Swift.Error> {
-	/// The observers of the `Signal`.
+	/// 存储信号量所有的观察者
 	fileprivate let observers: Bag<Signal<Value, Error>.Observer>
 
-	/// A self-retaining reference. It is set when there are one or more active
-	/// observers.
+    //上述所有Observers所观察的信号量
 	fileprivate let retaining: Signal<Value, Error>?
-
-	/// Create an alive state.
-	///
-	/// - parameters:
-	///   - observers: The latest bag of observers.
-	///   - retaining: The self-retaining reference of the `Signal`, if necessary.
-	init(observers: Bag<Signal<Value, Error>.Observer> = Bag(), retaining: Signal<Value, Error>? = nil) {
+    
+    /// 构造器
+    ///
+    /// - Parameters:
+    ///   - observers: 存储观察者的Bag，默认是空的Bag()
+    ///   - retaining: 观察者所观察的信号量, 默认值为nil
+    init(observers: Bag<Signal<Value, Error>.Observer> = Bag(), retaining: Signal<Value, Error>? = nil) {
 		self.observers = observers
 		self.retaining = retaining
 	}
@@ -400,11 +402,14 @@ private final class AliveState<Value, Error: Swift.Error> {
 
 /// The state of a terminating `Signal`. It contains a bag of observers and the
 /// termination event.
+
+/// 信号量正在被终止的状态，对应着termination事件
 private final class TerminatingState<Value, Error: Swift.Error> {
-	/// The observers of the `Signal`.
+	
+	/// 存储所有处于TerminatingState状态的Observer
 	fileprivate let observers: Bag<Signal<Value, Error>.Observer>
 
-	///  The termination event.
+	/// 存储 termination事件
 	fileprivate let event: Event<Value, Error>
 
 	/// Create a terminating state.
