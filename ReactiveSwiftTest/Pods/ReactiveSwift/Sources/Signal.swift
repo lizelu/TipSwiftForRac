@@ -24,42 +24,13 @@ import Result
 ///    2. it has no active observers, and is not being retained.
 public final class Signal<Value, Error: Swift.Error> {
 	public typealias Observer = ReactiveSwift.Observer<Value, Error>
-
-	/// The disposable returned by the signal generator. It would be disposed of
-	/// when the signal terminates.
 	private var generatorDisposable: Disposable?
 
-	/// The state of the signal.
-	///
- 	/// `state` synchronizes using Read-Copy-Update. Reads on the event delivery
-	/// routine are thus wait-free. But modifications, e.g. inserting observers,
-	/// still have to be serialized, and are required not to mutate in place.
-	///
-	/// This suits `Signal` as reads to `status` happens on the critical path of
-	/// event delivery, while observers bag manipulation or termination generally
-	/// has a constant occurrence.
-	///
-	/// As `SignalState` is a packed object reference (a tagged pointer) that is
-	/// naturally aligned, reads to are guaranteed to be atomic on all supported
-	/// hardware architectures of Swift (ARM and x86).
-	private var state: SignalState<Value, Error>
+    private var state: SignalState<Value, Error>
 
-	/// Used to ensure that state updates are serialized.
-	private let updateLock: NSLock
-
-	/// Used to ensure that events are serialized during delivery to observers.
+    private let updateLock: NSLock
 	private let sendLock: NSLock
 
-	/// Initialize a Signal that will immediately invoke the given generator,
-	/// then forward events sent to the given observer.
-	///
-	/// - note: The disposable returned from the closure will be automatically
-	///         disposed if a terminating event is sent to the observer. The
-	///         Signal itself will remain alive until the observer is released.
-	///
-	/// - parameters:
-	///   - generator: A closure that accepts an implicitly created observer
-	///                that will act as an event emitter for the signal.
 	public init(_ generator: (Observer) -> Disposable?) {
 		state = SignalState.alive(AliveState())
 		updateLock = NSLock()
@@ -306,13 +277,17 @@ public final class Signal<Value, Error: Swift.Error> {
 	///            or `nil` if the signal has already terminated.
 	@discardableResult
 	public func observe(_ observer: Observer) -> Disposable? {
+        
 		var token: RemovalToken?
         
         //如果信号是alive状态，更新alive状态下的bag内容
 		updateLock.lock()
 		if case let .alive(snapshot) = state {
+            
 			var observers = snapshot.observers
+            
 			token = observers.insert(observer)
+            
             state = .alive(AliveState(observers: observers, retaining: self))
 		}
 		updateLock.unlock()
@@ -394,7 +369,8 @@ private final class AliveState<Value, Error: Swift.Error> {
     /// - Parameters:
     ///   - observers: 存储观察者的Bag，默认是空的Bag()
     ///   - retaining: 观察者所观察的信号量, 默认值为nil
-    init(observers: Bag<Signal<Value, Error>.Observer> = Bag(), retaining: Signal<Value, Error>? = nil) {
+    init(observers: Bag<Signal<Value, Error>.Observer> = Bag(),
+         retaining: Signal<Value, Error>? = nil) {
 		self.observers = observers
 		self.retaining = retaining
 	}
