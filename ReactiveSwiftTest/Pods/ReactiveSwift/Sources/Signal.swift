@@ -229,32 +229,25 @@ public final class Signal<Value, Error: Swift.Error> {
 		swapDisposable()?.dispose()
 	}
 
-	/// A Signal that never sends any events to its observers.
+	
+	/// 通过该计算属性获取的Signal对象，不会获取到内置的Observer对象
+	/// 也就是说信号量持有者不会拿到发送事件的句柄
 	public static var never: Signal {
 		return self.init { _ in nil }
 	}
 
-	/// A Signal that completes immediately without emitting any value.
+	/// 内置的Observer对象直接向信号量所有的观察者发送完成事件
 	public static var empty: Signal {
 		return self.init { observer in
 			observer.sendCompleted()
 			return nil
 		}
 	}
-
-	/// Create a `Signal` that will be controlled by sending events to an
-	/// input observer.
+	
+	/// 信号量持有者可以获取到Signal内部用来发送事件的Observer
 	///
-	/// - note: The `Signal` will remain alive until a terminating event is sent
-	///         to the input observer, or until it has no observers and there
-	///         are no strong references to it.
-	///
-	/// - parameters:
-	///   - disposable: An optional disposable to associate with the signal, and
-	///                 to be disposed of when the signal terminates.
-	///
-	/// - returns: A tuple of `output: Signal`, the output end of the pipe,
-	///            and `input: Observer`, the input end of the pipe.
+	/// - Parameter disposable: disposable
+	/// - Returns: (信号量, 发送信事件的Observer)
 	public static func pipe(disposable: Disposable? = nil) -> (output: Signal, input: Observer) {
 		var observer: Observer!
 		let signal = self.init { innerObserver in
