@@ -401,17 +401,11 @@ private final class TerminatingState<Value, Error: Swift.Error> {
 
 /// A protocol used to constraint `Signal` operators.
 public protocol SignalProtocol {
-	/// The type of values being sent on the signal.
 	associatedtype Value
+    associatedtype Error: Swift.Error
 
-	/// The type of error that can occur on the signal. If errors aren't
-	/// possible then `NoError` can be used.
-	associatedtype Error: Swift.Error
-
-	/// Extracts a signal from the receiver.
 	var signal: Signal<Value, Error> { get }
-
-	/// Observes the Signal by sending any future events to the given observer.
+    
 	@discardableResult
 	func observe(_ observer: Signal<Value, Error>.Observer) -> Disposable?
 }
