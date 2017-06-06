@@ -82,19 +82,28 @@ class ViewController: UIViewController {
     
     @IBAction func tapSignalTestButton(_ sender: Any) {
         
+        //mySignal中用来发送事件的Observer
         var myObserver: Observer<Int, NoError>?
-
+        
+        //通过Signal的尾随闭包来获取Signal中用来发送消息的Observer
         let mySignal = Signal<Int, NoError> { (innerObserver) -> Disposable? in
+            
             myObserver = innerObserver
+            
             return nil
         }
         
+        //创建观察者
         let subscriber01 = Observer<Int, NoError>(value: { print("Subscriber 01 received \($0)") } )
         let subscriber02 = Observer<Int, NoError>(value: { print("Subscriber 02 received \($0)") } )
+        
+        //将信号量与观察者进行绑定
         mySignal.observe(subscriber01)
         mySignal.observe(subscriber02)
         
+        //使用Signal的Observer来给绑定的观察者发送消息
         myObserver?.send(value: 1000)
+        
         
         
         print("\n\n")
