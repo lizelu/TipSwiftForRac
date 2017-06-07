@@ -78,7 +78,9 @@ public final class SimpleDisposable: Disposable {
 
 /// A disposable that will run an action upon disposal.
 public final class ActionDisposable: Disposable {
+    
 	private var action: (() -> Void)?
+    
 	private var state: UnsafeAtomicState<DisposableState>
 
 	public var isDisposed: Bool {

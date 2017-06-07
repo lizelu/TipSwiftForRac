@@ -44,53 +44,6 @@ public final class Signal<Value, Error: Swift.Error> {
 				return
 			}
 
-			// Thread Safety Notes on `Signal.state`.
-			//
-			// - Check if the signal is at a specific state.
-			//
-			//   Read directly.
-			//
-			// - Deliver `value` events with the alive state.
-			//
-			//   `sendLock` must be acquired.
-			//
-			// - Replace the alive state with another.
-			//   (e.g. observers bag manipulation)
-			//
-			//   `updateLock` must be acquired.
-			//
-			// - Transition from `alive` to `terminating` as a result of receiving
-			//   a termination event.
-			//
-			//   `updateLock` must be acquired, and should fail gracefully if the
-			//   signal has terminated.
-			//
-			// - Check if the signal is terminating. If it is, invoke `tryTerminate`
-			//   which transitions the state from `terminating` to `terminated`, and
-			//   delivers the termination event.
-			//
-			//   Both `sendLock` and `updateLock` must be acquired. The check can be
-			//   relaxed, but the state must be checked again after the locks are
-			//   acquired. Fail gracefully if the state has changed since the relaxed
-			//   read, i.e. a concurrent sender has already handled the termination
-			//   event.
-			//
-			// Exploiting the relaxation of reads, please note that false positives
-			// are intentionally allowed in the `terminating` checks below. As a
-			// result, normal event deliveries need not acquire `updateLock`.
-			// Nevertheless, this should not cause the termination event being
-			// sent multiple times, since `tryTerminate` would not respond to false
-			// positives.
-
-			/// Try to terminate the signal.
-			///
-			/// If the signal is alive or has terminated, it fails gracefully. In
-			/// other words, calling this method as a result of a false positive
-			/// `terminating` check is permitted.
-			///
-			/// - note: The `updateLock` would be acquired.
-			///
-			/// - returns: `true` if the attempt succeeds. `false` otherwise.
 			@inline(__always)
 			func tryTerminate() -> Bool {
 				// Acquire `updateLock`. If the termination has still not yet been
@@ -112,28 +65,13 @@ public final class Signal<Value, Error: Swift.Error> {
 				return false
 			}
 
+            //对应着 .failed, .completed, .interrupted 事件
 			if event.isTerminating {
-				// Recursive events are disallowed for `value` events, but are permitted
-				// for termination events. Specifically:
-				//
-				// - `interrupted`
-				// It can inadvertently be sent by downstream consumers as part of the
-				// `SignalProducer` mechanics.
-				//
-				// - `completed`
-				// If a downstream consumer weakly references an object, invocation of
-				// such consumer may cause a race condition with its weak retain against
-				// the last strong release of the object. If the `Lifetime` of the
-				// object is being referenced by an upstream `take(during:)`, a
-				// signal recursion might occur.
-				//
-				// So we would treat termination events specially. If it happens to
-				// occur while the `sendLock` is acquired, the observer call-out and
-				// the disposal would be delegated to the current sender, or
-				// occasionally one of the senders waiting on `sendLock`.
-				signal.updateLock.lock()
-
+                signal.updateLock.lock()
+                
+                //将SignalState.alive状态修改成SignalState.terminating
 				if case let SignalState.alive(state) = signal.state {
+                    
 					let newSnapshot = TerminatingState(observers: state.observers,
 					                                   event: event)
 					signal.state = .terminating(newSnapshot)
@@ -236,10 +174,12 @@ public final class Signal<Value, Error: Swift.Error> {
 		return self.init { _ in nil }
 	}
 
-	/// 内置的Observer对象直接向信号量所有的观察者发送完成事件
+	/// 初始化Signal对象时，调用Observer的Completed事件
 	public static var empty: Signal {
 		return self.init { observer in
+            
 			observer.sendCompleted()
+            
 			return nil
 		}
 	}
@@ -250,6 +190,7 @@ public final class Signal<Value, Error: Swift.Error> {
 	/// - Returns: (信号量, 发送信事件的Observer)
 	public static func pipe(disposable: Disposable? = nil) -> (output: Signal, input: Observer) {
 		var observer: Observer!
+        
 		let signal = self.init { innerObserver in
 			observer = innerObserver
 			return disposable
@@ -285,7 +226,6 @@ public final class Signal<Value, Error: Swift.Error> {
 		}
 		updateLock.unlock()
         
-
         //用于返回ActionDisposable， ActionDisposable主要负责从Signal中移除Observer
 		if let token = token {
 			return ActionDisposable { [weak self] in
@@ -293,14 +233,10 @@ public final class Signal<Value, Error: Swift.Error> {
 					s.updateLock.lock()
 
 					if case let .alive(snapshot) = s.state {
+                    
 						var observers = snapshot.observers
 						observers.remove(using: token)
 
-						// Ensure the old signal state snapshot does not deinitialize before
-						// `updateLock` is released. Otherwise, it might result in a
-						// deadlock in cases where a `Signal` legitimately receives terminal
-						// events recursively as a result of the deinitialization of the
-						// snapshot.
                         //更新Single状态中的bags
 						withExtendedLifetime(snapshot) {
 							s.state = .alive(AliveState(observers: observers,
