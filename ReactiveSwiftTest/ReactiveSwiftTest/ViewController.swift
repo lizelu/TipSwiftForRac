@@ -128,6 +128,21 @@ class ViewController: UIViewController {
 
     }
     
+    @IBAction func tapEmptySignalButton(_ sender: Any) {
+        let emptySignal = Signal<Int, NoError>.empty
+        
+        let observer = Observer<Int, NoError>(
+            value: { _ in print("value not called") },
+            failed: { _ in print("error not called") },
+            completed: { print("completed not called") },
+            interrupted: { print("interrupted called") }
+        )
+        
+        emptySignal.observe(observer)
+        emptySignal.observe(observer)
+    }
+    
+    
     
     
     override func didReceiveMemoryWarning() {
