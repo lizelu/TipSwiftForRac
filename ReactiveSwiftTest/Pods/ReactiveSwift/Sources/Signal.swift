@@ -346,31 +346,20 @@ extension Signal: SignalProtocol {
 }
 
 extension SignalProtocol {
-	/// Convenience override for observe(_:) to allow trailing-closure style
-	/// invocations.
-	///
-	/// - parameters:
-	///   - action: A closure that will accept an event of the signal
-	///
-	/// - returns: An optional `Disposable` which can be used to stop the
-	///            invocation of the callback. Disposing of the Disposable will
-	///            have no effect on the Signal itself.
-	@discardableResult
+    
+    /// observe方法中的参数是Observer类中的Action闭包
+    /// 用户可以直接在Action中对不同的事件进行处理
+    /// - Parameter action: 发送事件时所执行的闭包
+    /// - Returns: Disposable
+    @discardableResult
 	public func observe(_ action: @escaping Signal<Value, Error>.Observer.Action) -> Disposable? {
 		return observe(Observer(action))
 	}
 
-	/// Observe the `Signal` by invoking the given callback when `value` or
-	/// `failed` event are received.
+	/// 接收Result参数的observe方法
 	///
-	/// - parameters:
-	///   - result: A closure that accepts instance of `Result<Value, Error>`
-	///             enum that contains either a `.success(Value)` or
-	///             `.failure<Error>` case.
-	///
-	/// - returns: An optional `Disposable` which can be used to stop the
-	///            invocation of the callback. Disposing of the Disposable will
-	///            have no effect on the Signal itself.
+	/// - Parameter result: 参数为Result枚举的闭包
+	/// - Returns: <#return value description#>
 	@discardableResult
 	public func observeResult(_ result: @escaping (Result<Value, Error>) -> Void) -> Disposable? {
 		return observe(
@@ -381,47 +370,28 @@ extension SignalProtocol {
 		)
 	}
 
-	/// Observe the `Signal` by invoking the given callback when a `completed`
-	/// event is received.
+	/// 快捷关联Completed事件观察者
 	///
-	/// - parameters:
-	///   - completed: A closure that is called when `completed` event is
-	///                received.
-	///
-	/// - returns: An optional `Disposable` which can be used to stop the
-	///            invocation of the callback. Disposing of the Disposable will
-	///            have no effect on the Signal itself.
+	/// - Parameter completed: 发送completed事件所执行的闭包
+	/// - Returns: <#return value description#>
 	@discardableResult
 	public func observeCompleted(_ completed: @escaping () -> Void) -> Disposable? {
 		return observe(Observer(completed: completed))
 	}
-	
-	/// Observe the `Signal` by invoking the given callback when a `failed` 
-	/// event is received.
-	///
-	/// - parameters:
-	///   - error: A closure that is called when failed event is received. It
-	///            accepts an error parameter.
-	///
-	/// Returns a Disposable which can be used to stop the invocation of the
-	/// callback. Disposing of the Disposable will have no effect on the Signal
-	/// itself.
-	@discardableResult
+    
+    /// 快捷关联Failed事件观察者
+    ///
+    /// - Parameter error: Failed事件所执行的闭包
+    /// - Returns: <#return value description#>
+    @discardableResult
 	public func observeFailed(_ error: @escaping (Error) -> Void) -> Disposable? {
 		return observe(Observer(failed: error))
 	}
 	
-	/// Observe the `Signal` by invoking the given callback when an 
-	/// `interrupted` event is received. If the Signal has already terminated, 
-	/// the callback will be invoked immediately.
+	/// 快捷关联interrupted事件观察者
 	///
-	/// - parameters:
-	///   - interrupted: A closure that is invoked when `interrupted` event is
-	///                  received
-	///
-	/// - returns: An optional `Disposable` which can be used to stop the
-	///            invocation of the callback. Disposing of the Disposable will
-	///            have no effect on the Signal itself.
+	/// - Parameter interrupted: interrupted事件所执行的闭包
+	/// - Returns: <#return value description#>
 	@discardableResult
 	public func observeInterrupted(_ interrupted: @escaping () -> Void) -> Disposable? {
 		return observe(Observer(interrupted: interrupted))
