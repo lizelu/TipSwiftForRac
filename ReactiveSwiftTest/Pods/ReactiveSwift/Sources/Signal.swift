@@ -345,6 +345,8 @@ extension Signal: SignalProtocol {
 	}
 }
 
+
+// MARK: - 添加观察者observe()方法的扩展
 extension SignalProtocol {
     
     /// observe方法中的参数是Observer类中的Action闭包
@@ -399,33 +401,37 @@ extension SignalProtocol {
 }
 
 extension SignalProtocol where Error == NoError {
-	/// Observe the Signal by invoking the given callback when `value` events are
-	/// received.
+	
+	/// NoError情况下快捷关联value事件观察者
 	///
-	/// - parameters:
-	///   - value: A closure that accepts a value when `value` event is received.
-	///
-	/// - returns: An optional `Disposable` which can be used to stop the
-	///            invocation of the callback. Disposing of the Disposable will
-	///            have no effect on the Signal itself.
+	/// - Parameter value: value事件所执行的闭包
+	/// - Returns: <#return value description#>
 	@discardableResult
 	public func observeValues(_ value: @escaping (Value) -> Void) -> Disposable? {
 		return observe(Observer(value: value))
 	}
 }
 
+
+
+
+
+// MARK: - Map扩展
 extension SignalProtocol {
-	/// Map each value in the signal to a new value.
-	///
-	/// - parameters:
-	///   - transform: A closure that accepts a value from the `value` event and
-	///                returns a new value.
-	///
-	/// - returns: A signal that will send new values.
+	
+	/// 根据尾随闭包提供的映射规则以及返回函数map<U>()提供的泛型类型
+	/// 将原来的Signal<Value, Error> 转换成 Signal<U, Error> 类型的信号量
+	/// - Parameter transform: 映射规则
+	/// - Returns: 持有新类型的信号量对象
 	public func map<U>(_ transform: @escaping (Value) -> U) -> Signal<U, Error> {
-		return Signal { observer in
-			return self.observe { event in
+		return Signal { observer in                     //返回一个新的信号量
+            
+            //把这个新的信号量内置负责发送消息的Observer对象调用observe(action)方法添加到原
+			return self.observe { event in  //此处的event的类型是Event<Value, Error>
+                
+                //调用event.map方法将该事件转换成Event<U, Error>
 				observer.action(event.map(transform))
+                
 			}
 		}
 	}
