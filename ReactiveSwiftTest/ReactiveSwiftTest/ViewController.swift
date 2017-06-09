@@ -30,6 +30,7 @@ class ViewController: UIViewController {
     }
     
     
+    
     func testBag() {
         
         /// 实例化Bags,并指定泛型类型为String
@@ -104,6 +105,8 @@ class ViewController: UIViewController {
         //使用Signal的Observer来给绑定的观察者发送消息
         myObserver?.send(value: 1000)
         
+ 
+        
         
         
         print("\n\n")
@@ -125,6 +128,21 @@ class ViewController: UIViewController {
         actionDisposable1?.dispose()
         print(actionDisposable1?.isDisposed ?? "")
         observer.send(value: 30)
+        
+        let filter = signal.filter { (value) -> Bool in
+            if value > 10 {
+                return true
+            } else {
+                return false
+            }
+        }.filter { (value) -> Bool in
+            if value < 100 {
+                return true
+            } else {
+                return false
+            }
+        }
+        
 
     }
     

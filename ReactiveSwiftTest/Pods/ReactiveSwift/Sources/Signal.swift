@@ -481,15 +481,20 @@ extension SignalProtocol {
 	///
 	/// - returns: A signal that will send only the values passing the given
 	///            predicate.
+    
 	public func filter(_ predicate: @escaping (Value) -> Bool) -> Signal<Value, Error> {
+        //返回一个新的信号量
 		return Signal { observer in
+            //执行observe(action)扩展方法，往原信号量中添加一个 桥接观察者
 			return self.observe { (event: Event<Value, Error>) -> Void in
-				guard let value = event.value else {
+                //闭包中是桥接观察者收到原信号量发出的事件所执行的Action
+                
+				guard let value = event.value else {    //获取事件的值
 					observer.action(event)
 					return
 				}
 
-				if predicate(value) {
+				if predicate(value) {   //满足过滤条件，过滤信号量才会对其绑定的观察者发送事件
 					observer.send(value: value)
 				}
 			}
@@ -533,15 +538,12 @@ extension SignalProtocol where Value: OptionalProtocol {
 }
 
 extension SignalProtocol {
-	/// Take up to `n` values from the signal and then complete.
-	///
-	/// - precondition: `count` must be non-negative number.
-	///
-	/// - parameters:
-	///   - count: A number of values to take from the signal.
-	///
-	/// - returns: A signal that will yield the first `count` values from `self`
-	public func take(first count: Int) -> Signal<Value, Error> {
+	
+    /// take方法，可以设定接收事件次数的上限，超过该值时，则会停止事件的接收
+    ///
+    /// - Parameter count: <#count description#>
+    /// - Returns: <#return value description#>
+    public func take(first count: Int) -> Signal<Value, Error> {
 		precondition(count >= 0)
 
 		return Signal { observer in
@@ -571,35 +573,26 @@ extension SignalProtocol {
 	}
 }
 
-/// A reference type which wraps an array to auxiliate the collection of values
-/// for `collect` operator.
+/// 泛型集合
 private final class CollectState<Value> {
+	/// 存储集合元素
 	var values: [Value] = []
+    
+    /// 判断该集合是否为空
+    var isEmpty: Bool {
+        return values.isEmpty && values.capacity > 0
+    }
 
-	/// Collects a new value.
+	/// 添加元素
+	///
+	/// - Parameter value:
 	func append(_ value: Value) {
 		values.append(value)
 	}
 
-	/// Check if there are any items remaining.
-	///
-	/// - note: This method also checks if there weren't collected any values
-	///         and, in that case, it means an empty array should be sent as the
-	///         result of collect.
-	var isEmpty: Bool {
-		/// We use capacity being zero to determine if we haven't collected any
-		/// value since we're keeping the capacity of the array to avoid
-		/// unnecessary and expensive allocations). This also guarantees
-		/// retro-compatibility around the original `collect()` operator.
-		return values.isEmpty && values.capacity > 0
-	}
-
-	/// Removes all values previously collected if any.
+	/// 清空集合
 	func flush() {
-		// Minor optimization to avoid consecutive allocations. Can
-		// be useful for sequences of regular or similar size and to
-		// track if any value was ever collected.
-		values.removeAll(keepingCapacity: true)
+        values.removeAll(keepingCapacity: true)
 	}
 }
 
@@ -675,16 +668,19 @@ extension SignalProtocol {
 	///            complets.
 	public func collect(_ predicate: @escaping (_ values: [Value]) -> Bool) -> Signal<[Value], Error> {
 		return Signal { observer in
+            
 			let state = CollectState<Value>()
 
 			return self.observe { event in
 				switch event {
 				case let .value(value):
 					state.append(value)
+                    
 					if predicate(state.values) {
 						observer.send(value: state.values)
 						state.flush()
 					}
+                    
 				case .completed:
 					if !state.isEmpty {
 						observer.send(value: state.values)
