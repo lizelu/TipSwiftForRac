@@ -597,75 +597,27 @@ private final class CollectState<Value> {
 }
 
 extension SignalProtocol {
-	/// Collect all values sent by the signal then forward them as a single
-	/// array and complete.
-	///
-	/// - note: When `self` completes without collecting any value, it will send
-	///         an empty array of values.
-	///
-	/// - returns: A signal that will yield an array of values when `self`
-	///            completes.
-	public func collect() -> Signal<[Value], Error> {
+    
+    /// 以集合的形式来接收所有Value事件
+    ///
+    /// - Returns: <#return value description#>
+    public func collect() -> Signal<[Value], Error> {
 		return collect { _,_ in false }
 	}
-
-	/// Collect at most `count` values from `self`, forward them as a single
-	/// array and complete.
-	///
-	/// - note: When the count is reached the array is sent and the signal
-	///         starts over yielding a new array of values.
-	///
-	/// - note: When `self` completes any remaining values will be sent, the
-	///         last array may not have `count` values. Alternatively, if were
-	///         not collected any values will sent an empty array of values.
-	///
-	/// - precondition: `count` should be greater than zero.
-	///
-	public func collect(count: Int) -> Signal<[Value], Error> {
+    
+    /// 将接收过来的事件进行分组，每组Count个
+    ///
+    /// - Parameter count: 每个集合中最大元素个数
+    /// - Returns: <#return value description#>
+    public func collect(count: Int) -> Signal<[Value], Error> {
 		precondition(count > 0)
 		return collect { values in values.count == count }
 	}
 
-	/// Collect values that pass the given predicate then forward them as a
-	/// single array and complete.
-	///
-	/// - note: When `self` completes any remaining values will be sent, the
-	///         last array may not match `predicate`. Alternatively, if were not
-	///         collected any values will sent an empty array of values.
-	///
-	/// ````
-	/// let (signal, observer) = Signal<Int, NoError>.pipe()
-	///
-	/// signal
-	///     .collect { values in values.reduce(0, combine: +) == 8 }
-	///     .observeValues { print($0) }
-	///
-	/// observer.send(value: 1)
-	/// observer.send(value: 3)
-	/// observer.send(value: 4)
-	/// observer.send(value: 7)
-	/// observer.send(value: 1)
-	/// observer.send(value: 5)
-	/// observer.send(value: 6)
-	/// observer.sendCompleted()
-	///
-	/// // Output:
-	/// // [1, 3, 4]
-	/// // [7, 1]
-	/// // [5, 6]
-	/// ````
-	///
-	/// - parameters:
-	///   - predicate: Predicate to match when values should be sent (returning
-	///                `true`) or alternatively when they should be collected
-	///                (where it should return `false`). The most recent value
-	///                (`value`) is included in `values` and will be the end of
-	///                the current array of values if the predicate returns
-	///                `true`.
-	///
-	/// - returns: A signal that collects values passing the predicate and, when
-	///            `self` completes, forwards them as a single array and
-	///            complets.
+	/// 按闭包提供的条件进行分组
+	/// 条件闭包中的参数是目前已经接收但尚未发送的集合数组
+	/// - Parameter predicate: 分组条件
+	/// - Returns: <#return value description#>
 	public func collect(_ predicate: @escaping (_ values: [Value]) -> Bool) -> Signal<[Value], Error> {
 		return Signal { observer in
             
@@ -695,45 +647,12 @@ extension SignalProtocol {
 		}
 	}
 
-	/// Repeatedly collect an array of values up to a matching `value` value.
-	/// Then forward them as single array and wait for value events.
-	///
-	/// - note: When `self` completes any remaining values will be sent, the
-	///         last array may not match `predicate`. Alternatively, if no
-	///         values were collected an empty array will be sent.
-	///
-	/// ````
-	/// let (signal, observer) = Signal<Int, NoError>.pipe()
-	///
-	/// signal
-	///     .collect { values, value in value == 7 }
-	///     .observeValues { print($0) }
-	///
-	/// observer.send(value: 1)
-	/// observer.send(value: 1)
-	/// observer.send(value: 7)
-	/// observer.send(value: 7)
-	/// observer.send(value: 5)
-	/// observer.send(value: 6)
-	/// observer.sendCompleted()
-	///
-	/// // Output:
-	/// // [1, 1]
-	/// // [7]
-	/// // [7, 5, 6]
-	/// ````
-	///
-	/// - parameters:
-	///   - predicate: Predicate to match when values should be sent (returning
-	///                `true`) or alternatively when they should be collected
-	///                (where it should return `false`). The most recent value
-	///                (`value`) is not included in `values` and will be the
-	///                start of the next array of values if the predicate
-	///                returns `true`.
-	///
-	/// - returns: A signal that will yield an array of values based on a
-	///            predicate which matches the values collected and the next
-	///            value.
+	
+	/// 按闭包条件分组
+	/// 条件闭包中第一个参数是目前已经接收但尚未发送的集合数组
+    /// 条件闭包中第二个参数是目前正在接收过来的Value
+	/// - Parameter predicate: 条件闭包
+	/// - Returns: <#return value description#>
 	public func collect(_ predicate: @escaping (_ values: [Value], _ value: Value) -> Bool) -> Signal<[Value], Error> {
 		return Signal { observer in
 			let state = CollectState<Value>()
