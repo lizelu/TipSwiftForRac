@@ -42,7 +42,7 @@ func testMagicMethod() {
     let str = magic.testMethod(value: "AAA")
     print(str)
 }
-//testMagicMethod()
+testMagicMethod()
 
 
 func testAutoclosure() {
@@ -51,6 +51,7 @@ func testAutoclosure() {
     let result1 = autoClosure.testMethod { () -> Bool in
         return 10 > 20
     }
+    
     print(result1)
     
     let result2 = autoClosure.testMethod1(value: 20 > 10)
