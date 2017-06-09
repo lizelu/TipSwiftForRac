@@ -626,6 +626,7 @@ extension SignalProtocol {
 			return self.observe { event in
 				switch event {
 				case let .value(value):
+                    
 					state.append(value)
                     
 					if predicate(state.values) {
@@ -634,10 +635,12 @@ extension SignalProtocol {
 					}
                     
 				case .completed:
+                    
 					if !state.isEmpty {
 						observer.send(value: state.values)
 					}
 					observer.sendCompleted()
+                    
 				case let .failed(error):
 					observer.send(error: error)
 				case .interrupted:
@@ -660,10 +663,12 @@ extension SignalProtocol {
 			return self.observe { event in
 				switch event {
 				case let .value(value):
+                    
 					if predicate(state.values, value) {
 						observer.send(value: state.values)
 						state.flush()
 					}
+                    
 					state.append(value)
 				case .completed:
 					if !state.isEmpty {
