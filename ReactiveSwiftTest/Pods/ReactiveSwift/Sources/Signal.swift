@@ -708,15 +708,30 @@ private final class CombineLatestState<Value> {
 }
 
 extension SignalProtocol {
-	private func observeWithStates<U>(_ signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ observer: Signal<(), Error>.Observer) -> Disposable? {
+	private func observeWithStates<U>(_ signalState: CombineLatestState<Value>,
+	                               _ otherState: CombineLatestState<U>,
+	                               _ lock: NSLock,
+	                               _ observer: Signal<(), Error>.Observer) -> Disposable? {
+        
+        print("\(String(describing: signalState.latestValue))")
+        print("\(String(describing: otherState.latestValue))")
+        
 		return self.observe { event in
 			switch event {
 			case let .value(value):
 				lock.lock()
 
+                
 				signalState.latestValue = value
+                
+                print("signalState.hashValue = \(ObjectIdentifier(signalState).hashValue)")
+                print("otherState.hashValue = \(ObjectIdentifier(otherState).hashValue)")
+                print("signalState.latestValue = \(String(describing: signalState.latestValue))")
+                print("otherState.latestValue = \(String(describing: otherState.latestValue))\n")
+                
 				if otherState.latestValue != nil {
 					observer.send(value: ())
+                    print("\n\n")
 				}
 
 				lock.unlock()
@@ -740,40 +755,41 @@ extension SignalProtocol {
 		}
 	}
 
-	/// Combine the latest value of the receiver with the latest value from the
-	/// given signal.
-	///
-	/// - note: The returned signal will not send a value until both inputs have
-	///         sent at least one value each.
-	///
-	/// - note: If either signal is interrupted, the returned signal will also
-	///         be interrupted.
-	///
-	/// - note: The returned signal will not complete until both inputs
-	///         complete.
-	///
-	/// - parameters:
-	///   - otherSignal: A signal to combine `self`'s value with.
-	///
-	/// - returns: A signal that will yield a tuple containing values of `self`
-	///            and given signal.
-	public func combineLatest<U>(with other: Signal<U, Error>) -> Signal<(Value, U), Error> {
+    
+    /// 将两个信号量的最后发送的值进行合并
+    ///
+    /// - Parameter other: 要合并的信号量
+    /// - Returns: 返回合并后的信号量
+    public func combineLatest<U>(with other: Signal<U, Error>) -> Signal<(Value, U), Error> {
 		return Signal { observer in
 			let lock = NSLock()
 			lock.name = "org.reactivecocoa.ReactiveSwift.combineLatestWith"
 
+            //记录两个要合并信号量的最后发送的Value
 			let signalState = CombineLatestState<Value>()
 			let otherState = CombineLatestState<U>()
+            
+            print("signalState.hashValue = \(ObjectIdentifier(signalState).hashValue)")
+            print("otherState.hashValue = \(ObjectIdentifier(otherState).hashValue)\n")
 
+            //匿名无参数闭包，用来回调发送合并后的值
 			let onBothValue = {
 				observer.send(value: (signalState.latestValue!, otherState.latestValue!))
 			}
 
-			let observer = Signal<(), Error>.Observer(value: onBothValue, failed: observer.send(error:), completed: observer.sendCompleted, interrupted: observer.sendInterrupted)
+            //创建一个新的Observer，用来代理observer来发送消息
+            //observerDelegate发送消息的值是一个匿名参数为空的闭包
+			let observerDelegate = Signal<(), Error>.Observer(value: onBothValue,
+			                                                  failed: observer.send(error:),
+			                                                  completed: observer.sendCompleted,
+			                                                  interrupted: observer.sendInterrupted)
 
 			let disposable = CompositeDisposable()
-			disposable += self.observeWithStates(signalState, otherState, lock, observer)
-			disposable += other.observeWithStates(otherState, signalState, lock, observer)
+            //将新的信号量的Observer事件与当前信号量进行桥接
+			disposable += self.observeWithStates(signalState, otherState, lock, observerDelegate)
+            
+            //将新的信号量的Observer事件与要合并的信号量进行桥接
+			disposable += other.observeWithStates(otherState, signalState, lock, observerDelegate)
 			
 			return disposable
 		}
