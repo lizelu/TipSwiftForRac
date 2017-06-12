@@ -708,10 +708,7 @@ private final class CombineLatestState<Value> {
 }
 
 extension SignalProtocol {
-	private func observeWithStates<U>(_ signalState: CombineLatestState<Value>,
-	                               _ otherState: CombineLatestState<U>,
-	                               _ lock: NSLock,
-	                               _ observer: Signal<(), Error>.Observer) -> Disposable? {
+	private func observeWithStates<U>(_ signalState: CombineLatestState<Value>, _ otherState: CombineLatestState<U>, _ lock: NSLock, _ observer: Signal<(), Error>.Observer) -> Disposable? {
         
         print("\(String(describing: signalState.latestValue))")
         print("\(String(describing: otherState.latestValue))")
@@ -720,8 +717,6 @@ extension SignalProtocol {
 			switch event {
 			case let .value(value):
 				lock.lock()
-
-                
 				signalState.latestValue = value
                 
                 print("signalState.hashValue = \(ObjectIdentifier(signalState).hashValue)")
