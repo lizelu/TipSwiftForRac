@@ -3,61 +3,43 @@ import enum Result.NoError
 
 /// Represents the lifetime of an object, and provides a hook to observe when
 /// the object deinitializes.
+/// 代表一个对象的生命周期，当对象被析构时，为观察者提供了一个钩子
 public final class Lifetime {
-	// MARK: Type properties and methods
-
-	/// Factory method for creating a `Lifetime` and its associated `Token`.
+	/// Lifetime的工厂方法
 	///
-	/// - returns: A `(lifetime, token)` tuple.
+	/// - Returns: Lifetime的对象以及该Lifetime对象所对应的Token对象
 	public static func make() -> (lifetime: Lifetime, token: Token) {
 		let token = Token()
 		return (Lifetime(token), token)
 	}
 
-	/// A `Lifetime` that has already ended.
+	/// 创建一个已经结束的生命周期
 	public static var empty: Lifetime {
-		return Lifetime(ended: .empty)
+		return Lifetime(ended: Signal.empty)
 	}
-
-	// MARK: Instance properties
-
-	/// A signal that sends a `completed` event when the lifetime ends.
-	///
-	/// - note: Consider using `Lifetime.observeEnded` if only a closure observer
-	///         is to be attached.
+    
+    /// 接收Token对象的便利构造器
+    ///
+    /// - Parameter token: Token对象
+    public convenience init(_ token: Token) {
+        self.init(ended: token.ended)
+    }
+    
+    /// 参数为Signal类型的构造器
+    ///
+    /// - Parameter signal: <#signal description#>
+    private init(ended signal: Signal<(), NoError>) {
+        ended = signal
+    }
+	
+ 	/// 用来存储Token对象中的ended信号量
  	public let ended: Signal<(), NoError>
 
-	// MARK: Initializers
-
-	/// Initialize a `Lifetime` object with the supplied ended signal.
-	///
-	/// - parameters:
-	///   - signal: The ended signal.
-	private init(ended signal: Signal<(), NoError>) {
-		ended = signal
-	}
-
-	/// Initialize a `Lifetime` from a lifetime token, which is expected to be
-	/// associated with an object.
-	///
-	/// - important: The resulting lifetime object does not retain the lifetime
-	///              token.
-	///
-	/// - parameters:
-	///   - token: A lifetime token for detecting the deinitialization of the
-	///            associated object.
-	public convenience init(_ token: Token) {
-		self.init(ended: token.ended)
-	}
-
-	/// Observe the termination of `self`.
-	///
-	/// - parameters:
-	///   - action: The action to be invoked when `self` ends.
-	///
-	/// - returns: A disposable that detaches `action` from the lifetime, or `nil`
-	///            if `lifetime` has already ended.
-	@discardableResult
+    /// 往ended信号量中添加一个观察者，该观察者之监听
+    /// isTerminating （.failed, .completed, .interrupted）事件
+    /// - Parameter action: isTerminating事件对外的闭包回调
+    /// - Returns: <#return value description#>
+    @discardableResult
 	public func observeEnded(_ action: @escaping () -> Void) -> Disposable? {
 		return ended.observe { event in
 			if event.isTerminating {
@@ -65,17 +47,9 @@ public final class Lifetime {
 			}
 		}
 	}
-
-	/// A token object which completes its signal when it deinitializes.
-	///
-	/// It is generally used in conjuncion with `Lifetime` as a private
-	/// deinitialization trigger.
-	///
-	/// ```
-	/// class MyController {
-	///		private let (lifetime, token) = Lifetime.make()
-	/// }
-	/// ```
+    
+	/// 其中就是一个信号量以及信号量负责发送消息的Observer
+	/// 当Token被释放时，Observer会发送completed事件
 	public final class Token {
 		/// A signal that sends a Completed event when the lifetime ends.
 		fileprivate let ended: Signal<(), NoError>
@@ -86,6 +60,7 @@ public final class Lifetime {
 			(ended, endedObserver) = Signal.pipe()
 		}
 
+        //在Token的析构函数中发送Completed方法
 		deinit {
 			endedObserver.sendCompleted()
 		}
