@@ -176,6 +176,33 @@ class ViewController: UIViewController {
         observerInt.send(value: 2)
     }
     
+    @IBAction func tapLifetimeButton(_ sender: Any) {
+        var tokenRef: Any?
+        
+        lifetime(tokenRef: &tokenRef)
+        print("lifetime已被释放\n")
+        
+        print("token将要被释放")
+        tokenRef = nil
+        print("token已经被释放！")
+    }
+    
+    func lifetime( tokenRef: inout Any?) {
+        
+        let (lifetime, token) = Lifetime.make()
+        
+        tokenRef = token
+        
+        lifetime.observeEnded {
+            print("lifetime, token被释放的信号量1")
+        }
+        
+        lifetime.observeEnded {
+            print("lifetime, token被释放的信号量2")
+        }
+        
+        print("lifetime将要被释放")
+    }
     
     
     override func didReceiveMemoryWarning() {

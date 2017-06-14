@@ -61,6 +61,14 @@
                                     <action selector="tapCombineLatestButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6gM-jJ-SLp"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XYm-Ev-iir">
+                                <rect key="frame" x="144" y="138" width="55" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Lifetime"/>
+                                <connections>
+                                    <action selector="tapLifetimeButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="iiu-UN-44m"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
@@ -68,7 +76,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="975" y="-544"/>
+            <point key="canvasLocation" x="973.60000000000002" y="-544.67766116941539"/>
         </scene>
         <!--Obsever Test View Controller-->
         <scene sceneID="pf3-GP-vTc">

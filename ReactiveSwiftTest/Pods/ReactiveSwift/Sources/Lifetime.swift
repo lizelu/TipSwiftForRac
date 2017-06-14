@@ -3,8 +3,9 @@ import enum Result.NoError
 
 /// Represents the lifetime of an object, and provides a hook to observe when
 /// the object deinitializes.
-/// 代表一个对象的生命周期，当对象被析构时，为观察者提供了一个钩子
+/// 代表一个对象的生命周期，当对象被析构时，为观察者提供了一个回
 public final class Lifetime {
+
 	/// Lifetime的工厂方法
 	///
 	/// - Returns: Lifetime的对象以及该Lifetime对象所对应的Token对象
@@ -25,6 +26,9 @@ public final class Lifetime {
         self.init(ended: token.ended)
     }
     
+    /// 用来存储Token对象中的ended信号量
+    public let ended: Signal<(), NoError>
+    
     /// 参数为Signal类型的构造器
     ///
     /// - Parameter signal: <#signal description#>
@@ -32,8 +36,6 @@ public final class Lifetime {
         ended = signal
     }
 	
- 	/// 用来存储Token对象中的ended信号量
- 	public let ended: Signal<(), NoError>
 
     /// 往ended信号量中添加一个观察者，该观察者之监听
     /// isTerminating （.failed, .completed, .interrupted）事件
@@ -41,12 +43,20 @@ public final class Lifetime {
     /// - Returns: <#return value description#>
     @discardableResult
 	public func observeEnded(_ action: @escaping () -> Void) -> Disposable? {
+        
 		return ended.observe { event in
+            
 			if event.isTerminating {
 				action()
 			}
+            
 		}
+        
 	}
+    
+    deinit {
+        print("Lifetime的析构函数")
+    }
     
 	/// 其中就是一个信号量以及信号量负责发送消息的Observer
 	/// 当Token被释放时，Observer会发送completed事件
@@ -62,6 +72,7 @@ public final class Lifetime {
 
         //在Token的析构函数中发送Completed方法
 		deinit {
+            print("Token的析构函数")
 			endedObserver.sendCompleted()
 		}
 	}
