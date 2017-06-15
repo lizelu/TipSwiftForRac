@@ -36,12 +36,88 @@ public struct SignalProducer<Value, Error: Swift.Error> {
         return self.init { _ in return }
     }
     
+    /// 将SignalProducer所对应的Observer添加到传入的signal中
+    ///
+    /// - Parameter signal: 外部传入的闭包
     public init<S: SignalProtocol>(_ signal: S) where S.Value == Value, S.Error == Error {
         self.init { observer, disposable in
             disposable += signal.observe(observer)
         }
     }
     
+    /// 直接调用SignalProducer所对应的Observer发送Value事件
+    ///
+    /// - Parameter value: 所要发送的值
+    public init(value: Value) {
+        self.init { observer, disposable in
+            observer.send(value: value)
+            observer.sendCompleted()
+        }
+    }
+    
+    
+    /// 通过回调来提供发送的值
+    ///
+    /// - Parameter action: <#action description#>
+    public init(_ action: @escaping () -> Value) {
+        self.init { observer, disposable in
+            observer.send(value: action())
+            observer.sendCompleted()
+        }
+        
+        //同等于
+       // self.init(value: action())
+    }
+    
+    /// 直接就创建Error信号量
+    ///
+    /// - Parameter error: <#error description#>
+    public init(error: Error) {
+        self.init { observer, disposable in
+            observer.send(error: error)
+        }
+    }
+    
+    /// 将Result转换为Value或者Error事件
+    ///
+    /// - Parameter result: <#result description#>
+    public init(result: Result<Value, Error>) {
+        switch result {
+        case let .success(value):
+            self.init(value: value)
+            
+        case let .failure(error):
+            self.init(error: error)
+        }
+    }
+    
+    /// 将数组中的每个值转换成Value事件，并发送
+    ///
+    /// - Parameter result: <#result description#>
+    public init<S: Sequence>(_ values: S) where S.Iterator.Element == Value {
+        self.init { observer, disposable in
+            for value in values {
+                observer.send(value: value)
+                
+                if disposable.isDisposed {
+                    break
+                }
+            }
+            
+            observer.sendCompleted()
+        }
+    }
+    
+    /// 将不定参数转换成数组，然后在调用上面的方法进行Value事件的发送
+    ///
+    /// - Parameters:
+    ///   - first: 第一个参数
+    ///   - second: 第二个参数
+    ///   - tail: 可以是多个参数
+    public init(values first: Value, _ second: Value, _ tail: Value...) {
+        self.init([ first, second ] + tail)
+    }
+
     /// 给startHandler赋值的构造器
     /// 该构造器的尾随闭包就是startHandler所执行的闭包体
     /// - Parameter startHandler: 尾随闭包
@@ -66,97 +142,6 @@ public struct SignalProducer<Value, Error: Swift.Error> {
         
         startHandler(observer, producerDisposable)  //执行init(startHandler)构造器后的尾随闭包
     }
-
-
-	/// Creates a producer for a `Signal` that will immediately send one value
-	/// then complete.
-	///
-	/// - parameters:
-	///   - value: A value that should be sent by the `Signal` in a `value`
-	///            event.
-	public init(value: Value) {
-		self.init { observer, disposable in
-			observer.send(value: value)
-			observer.sendCompleted()
-		}
-	}
-
-	/// Creates a producer for a `Signal` that immediately sends one value, then
-	/// completes.
-	///
-	/// This initializer differs from `init(value:)` in that its sole `value`
-	/// event is constructed lazily by invoking the supplied `action` when
-	/// the `SignalProducer` is started.
-	///
-	/// - parameters:
-	///   - action: A action that yields a value to be sent by the `Signal` as
-	///             a `value` event.
-	public init(_ action: @escaping () -> Value) {
-		self.init { observer, disposable in
-			observer.send(value: action())
-			observer.sendCompleted()
-		}
-	}
-
-	/// Creates a producer for a `Signal` that will immediately fail with the
-	/// given error.
-	///
-	/// - parameters:
-	///   - error: An error that should be sent by the `Signal` in a `failed`
-	///            event.
-	public init(error: Error) {
-		self.init { observer, disposable in
-			observer.send(error: error)
-		}
-	}
-
-	/// Creates a producer for a Signal that will immediately send one value
-	/// then complete, or immediately fail, depending on the given Result.
-	///
-	/// - parameters:
-	///   - result: A `Result` instance that will send either `value` event if
-	///             `result` is `success`ful or `failed` event if `result` is a
-	///             `failure`.
-	public init(result: Result<Value, Error>) {
-		switch result {
-		case let .success(value):
-			self.init(value: value)
-
-		case let .failure(error):
-			self.init(error: error)
-		}
-	}
-
-	/// Creates a producer for a Signal that will immediately send the values
-	/// from the given sequence, then complete.
-	///
-	/// - parameters:
-	///   - values: A sequence of values that a `Signal` will send as separate
-	///             `value` events and then complete.
-	public init<S: Sequence>(_ values: S) where S.Iterator.Element == Value {
-		self.init { observer, disposable in
-			for value in values {
-				observer.send(value: value)
-
-				if disposable.isDisposed {
-					break
-				}
-			}
-
-			observer.sendCompleted()
-		}
-	}
-	
-	/// Creates a producer for a Signal that will immediately send the values
-	/// from the given sequence, then complete.
-	///
-	/// - parameters:
-	///   - first: First value for the `Signal` to send.
-	///   - second: Second value for the `Signal` to send.
-	///   - tail: Rest of the values to be sent by the `Signal`.
-	public init(values first: Value, _ second: Value, _ tail: Value...) {
-		self.init([ first, second ] + tail)
-	}
 }
 
 
