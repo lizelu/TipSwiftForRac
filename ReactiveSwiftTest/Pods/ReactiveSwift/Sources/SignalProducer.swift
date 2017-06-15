@@ -17,40 +17,57 @@ import Result
 /// different order between Signals, or the stream might be completely
 /// different!
 public struct SignalProducer<Value, Error: Swift.Error> {
+    
 	public typealias ProducedSignal = Signal<Value, Error>
 
+    //一个无返回值的闭包常量，该闭包有两个参数一个是Observer，另一个是CompositeDisposable，
 	private let startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void
+    
+    /// A producer for a Signal that will immediately complete without sending
+    /// any values.
+    public static var empty: SignalProducer {
+        return self.init { observer, disposable in
+            observer.sendCompleted()
+        }
+    }
+    
+    /// A producer for a Signal that never sends any events to its observers.
+    public static var never: SignalProducer {
+        return self.init { _ in return }
+    }
+    
+    
+    public init<S: SignalProtocol>(_ signal: S) where S.Value == Value, S.Error == Error {
+        self.init { observer, disposable in
+            disposable += signal.observe(observer)
+        }
+    }
+    
+    /// 给startHandler赋值的构造器
+    /// 该构造器的尾随闭包就是startHandler所执行的闭包体
+    /// - Parameter startHandler: 尾随闭包
+    public init(_ startHandler: @escaping (Signal<Value, Error>.Observer, CompositeDisposable) -> Void) {
+        self.startHandler = startHandler
+    }
+    
+    /// 主要是执行startHandler
+    ///
+    /// - Parameter setup: setup闭包，负责将下方函数创建的信号量回调给使用者
+    public func startWithSignal(_ setup: (_ signal: Signal<Value, Error>, _ interrupter: Disposable) -> Void) {
+        let producerDisposable = CompositeDisposable()
+        
+        let (signal, observer) = Signal<Value, Error>.pipe(disposable: producerDisposable)
+        let cancelDisposable = ActionDisposable(action: observer.sendInterrupted)
+        setup(signal, cancelDisposable) //可以通过该闭包往signal中添加Observer
+        
+        //如果在setup的闭包体中调用了 cancelDisposable.dispose() 方法，就直接return，不执行startHandler()
+        if cancelDisposable.isDisposed {
+            return
+        }
+        
+        startHandler(observer, producerDisposable)  //执行init(startHandler)构造器后的尾随闭包
+    }
 
-	/// Initializes a `SignalProducer` that will emit the same events as the
-	/// given signal.
-	///
-	/// If the Disposable returned from `start()` is disposed or a terminating
-	/// event is sent to the observer, the given signal will be disposed.
-	///
-	/// - parameters:
-	///   - signal: A signal to observe after starting the producer.
-	public init<S: SignalProtocol>(_ signal: S) where S.Value == Value, S.Error == Error {
-		self.init { observer, disposable in
-			disposable += signal.observe(observer)
-		}
-	}
-
-	/// Initializes a SignalProducer that will invoke the given closure once for
-	/// each invocation of `start()`.
-	///
-	/// The events that the closure puts into the given observer will become
-	/// the events sent by the started `Signal` to its observers.
-	///
-	/// - note: If the `Disposable` returned from `start()` is disposed or a
-	///         terminating event is sent to the observer, the given
-	///         `CompositeDisposable` will be disposed, at which point work
-	///         should be interrupted and any temporary resources cleaned up.
-	///
-	/// - parameters:
-	///   - startHandler: A closure that accepts observer and a disposable.
-	public init(_ startHandler: @escaping (Signal<Value, Error>.Observer, CompositeDisposable) -> Void) {
-		self.startHandler = startHandler
-	}
 
 	/// Creates a producer for a `Signal` that will immediately send one value
 	/// then complete.
@@ -141,49 +158,8 @@ public struct SignalProducer<Value, Error: Swift.Error> {
 	public init(values first: Value, _ second: Value, _ tail: Value...) {
 		self.init([ first, second ] + tail)
 	}
-
-	/// A producer for a Signal that will immediately complete without sending
-	/// any values.
-	public static var empty: SignalProducer {
-		return self.init { observer, disposable in
-			observer.sendCompleted()
-		}
-	}
-
-	/// A producer for a Signal that never sends any events to its observers.
-	public static var never: SignalProducer {
-		return self.init { _ in return }
-	}
-
-	/// Create a Signal from the producer, pass it into the given closure,
-	/// then start sending events on the Signal when the closure has returned.
-	///
-	/// The closure will also receive a disposable which can be used to
-	/// interrupt the work associated with the signal and immediately send an
-	/// `interrupted` event.
-	///
-	/// - parameters:
-	///   - setUp: A closure that accepts a `signal` and `interrupter`.
-	public func startWithSignal(_ setup: (_ signal: Signal<Value, Error>, _ interrupter: Disposable) -> Void) {
-		// Disposes of the work associated with the SignalProducer and any
-		// upstream producers.
-		let producerDisposable = CompositeDisposable()
-
-		let (signal, observer) = Signal<Value, Error>.pipe(disposable: producerDisposable)
-
-		// Directly disposed of when `start()` or `startWithSignal()` is
-		// disposed.
-		let cancelDisposable = ActionDisposable(action: observer.sendInterrupted)
-
-		setup(signal, cancelDisposable)
-
-		if cancelDisposable.isDisposed {
-			return
-		}
-
-		startHandler(observer, producerDisposable)
-	}
 }
+
 
 /// A protocol used to constraint `SignalProducer` operators.
 public protocol SignalProducerProtocol {
