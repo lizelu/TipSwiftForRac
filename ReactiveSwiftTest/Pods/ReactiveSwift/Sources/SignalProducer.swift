@@ -36,7 +36,6 @@ public struct SignalProducer<Value, Error: Swift.Error> {
         return self.init { _ in return }
     }
     
-    
     public init<S: SignalProtocol>(_ signal: S) where S.Value == Value, S.Error == Error {
         self.init { observer, disposable in
             disposable += signal.observe(observer)
