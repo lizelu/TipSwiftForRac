@@ -309,6 +309,7 @@ extension SignalProducerProtocol where Error == NoError {
 	}
 }
 
+
 extension SignalProducerProtocol {
 	/// Lift an unary Signal operator to operate upon SignalProducers instead.
 	///
@@ -323,6 +324,7 @@ extension SignalProducerProtocol {
 	///            created signal.
 	public func lift<U, F>(_ transform: @escaping (Signal<Value, Error>) -> Signal<U, F>) -> SignalProducer<U, F> {
 		return SignalProducer { observer, outerDisposable in
+            
 			self.startWithSignal { signal, innerDisposable in
 				outerDisposable += innerDisposable
 
