@@ -133,6 +133,7 @@ public struct SignalProducer<Value, Error: Swift.Error> {
         
         let (signal, observer) = Signal<Value, Error>.pipe(disposable: producerDisposable)
         let cancelDisposable = ActionDisposable(action: observer.sendInterrupted)
+        
         setup(signal, cancelDisposable) //可以通过该闭包往signal中添加Observer
         
         //如果在setup的闭包体中调用了 cancelDisposable.dispose() 方法，就直接return，不执行startHandler()
@@ -170,6 +171,8 @@ extension SignalProducer: SignalProducerProtocol {
 	}
 }
 
+
+// MARK: - startWithSignal的快捷方法
 extension SignalProducerProtocol {
 	/// Create a Signal from the producer, then attach the given observer to
 	/// the `Signal` as an observer.
