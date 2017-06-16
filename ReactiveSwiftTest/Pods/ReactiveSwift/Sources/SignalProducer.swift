@@ -311,23 +311,18 @@ extension SignalProducerProtocol where Error == NoError {
 
 
 extension SignalProducerProtocol {
-	/// Lift an unary Signal operator to operate upon SignalProducers instead.
-	///
-	/// In other words, this will create a new `SignalProducer` which will apply
-	/// the given `Signal` operator to _every_ created `Signal`, just as if the
-	/// operator had been applied to each `Signal` yielded from `start()`.
-	///
-	/// - parameters:
-	///   - transform: An unary operator to lift.
-	///
-	/// - returns: A signal producer that applies signal's operator to every
-	///            created signal.
-	public func lift<U, F>(_ transform: @escaping (Signal<Value, Error>) -> Signal<U, F>) -> SignalProducer<U, F> {
+    
+    /// 新的SignalProducer与原来的进行铰接，其实中间是通过一个新的Signal对象来进行桥接的
+    ///
+    /// - Parameter transform: Signal的转换规则
+    /// - Returns: <#return value description#>
+    public func lift<U, F>(_ transform: @escaping (Signal<Value, Error>) -> Signal<U, F>) -> SignalProducer<U, F> {
 		return SignalProducer { observer, outerDisposable in
             
 			self.startWithSignal { signal, innerDisposable in
 				outerDisposable += innerDisposable
 
+                //将新的SignalProducer中的Observer添加到桥接Siganl中的Bag中
 				transform(signal).observe(observer)
 			}
 		}
