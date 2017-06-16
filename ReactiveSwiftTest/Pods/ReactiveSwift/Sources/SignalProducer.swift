@@ -174,16 +174,12 @@ extension SignalProducer: SignalProducerProtocol {
 
 // MARK: - startWithSignal的快捷方法
 extension SignalProducerProtocol {
-	/// Create a Signal from the producer, then attach the given observer to
-	/// the `Signal` as an observer.
-	///
-	/// - parameters:
-	///   - observer: An observer to attach to produced signal.
-	///
-	/// - returns: A `Disposable` which can be used to interrupt the work
-	///            associated with the signal and immediately send an
-	///            `interrupted` event.
-	@discardableResult
+    
+    /// 往SignalProducer的信号量中添加一个新的Observer
+    ///
+    /// - Parameter observer: 观察者对象
+    /// - Returns: Disposable对象
+    @discardableResult
 	public func start(_ observer: Signal<Value, Error>.Observer = .init()) -> Disposable {
 		var disposable: Disposable!
 
@@ -194,34 +190,21 @@ extension SignalProducerProtocol {
 
 		return disposable
 	}
-
-	/// Convenience override for start(_:) to allow trailing-closure style
-	/// invocations.
-	///
-	/// - parameters:
-	///   - observerAction: A closure that accepts `Event` sent by the produced
-	///                     signal.
-	///
-	/// - returns: A `Disposable` which can be used to interrupt the work
-	///            associated with the signal and immediately send an
-	///            `interrupted` event.
+    
+	/// 该方法传入的是一个Observer.Action事件闭包
+	/// 主要作用还是往SignalProducer的信号量中添加一个新的Observer
+	/// - Parameter observerAction: 该添加Observer对应的Action事件闭包
+	/// - Returns: <#return value description#>
 	@discardableResult
 	public func start(_ observerAction: @escaping Signal<Value, Error>.Observer.Action) -> Disposable {
 		return start(Observer(observerAction))
 	}
 
-	/// Create a Signal from the producer, then add an observer to the `Signal`,
-	/// which will invoke the given callback when `value` or `failed` events are
-	/// received.
-	///
-	/// - parameters:
-	///   - result: A closure that accepts a `result` that contains a `.success`
-	///             case for `value` events or `.failure` case for `failed` event.
-	///
-	/// - returns:  A Disposable which can be used to interrupt the work
-	///             associated with the Signal, and prevent any future callbacks
-	///             from being invoked.
-	@discardableResult
+    /// 将Rsualt对象转换成观察者然后添加进SignalProducer的Signal中
+    ///
+    /// - Parameter result: <#result description#>
+    /// - Returns: <#return value description#>
+    @discardableResult
 	public func startWithResult(_ result: @escaping (Result<Value, Error>) -> Void) -> Disposable {
 		return start(
 			Observer(
@@ -230,58 +213,38 @@ extension SignalProducerProtocol {
 			)
 		)
 	}
-
-	/// Create a Signal from the producer, then add exactly one observer to the
-	/// Signal, which will invoke the given callback when a `completed` event is
-	/// received.
+    
+	/// 添加持有Completed事件处理闭包的观察者
 	///
-	/// - parameters:
-	///   - completed: A closure that will be envoked when produced signal sends
-	///                `completed` event.
-	///
-	/// - returns: A `Disposable` which can be used to interrupt the work
-	///            associated with the signal.
+	/// - Parameter completed: <#completed description#>
+	/// - Returns: <#return value description#>
 	@discardableResult
 	public func startWithCompleted(_ completed: @escaping () -> Void) -> Disposable {
 		return start(Observer(completed: completed))
 	}
-	
-	/// Creates a Signal from the producer, then adds exactly one observer to
-	/// the Signal, which will invoke the given callback when a `failed` event
-	/// is received.
+    
+	/// 添加failed事件观察者的快捷方式
 	///
-	/// - parameters:
-	///   - failed: A closure that accepts an error object.
-	///
-	/// - returns: A `Disposable` which can be used to interrupt the work
-	///            associated with the signal.
+	/// - Parameter failed: <#failed description#>
+	/// - Returns: <#return value description#>
 	@discardableResult
 	public func startWithFailed(_ failed: @escaping (Error) -> Void) -> Disposable {
 		return start(Observer(failed: failed))
 	}
-	
-	/// Creates a Signal from the producer, then adds exactly one observer to
-	/// the Signal, which will invoke the given callback when an `interrupted`
-	/// event is received.
-	///
-	/// - parameters:
-	///   - interrupted: A closure that is invoked when `interrupted` event is
-	///                  received.
-	///
-	/// - returns: A `Disposable` which can be used to interrupt the work
-	///            associated with the signal.
-	@discardableResult
+    
+    /// 添加interrupted事件观察者的快捷方式
+    ///
+    /// - Parameter failed: <#failed description#>
+    /// - Returns: <#return value description#>
+    @discardableResult
 	public func startWithInterrupted(_ interrupted: @escaping () -> Void) -> Disposable {
 		return start(Observer(interrupted: interrupted))
 	}
 	
-	/// Creates a `Signal` from the producer.
+	
+	/// 获取SignalProducer中的信号量signal对象
 	///
-	/// This is equivalent to `SignalProducer.startWithSignal`, but it has 
-	/// the downside that any values emitted synchronously upon starting will 
-	/// be missed by the observer, because it won't be able to subscribe in time.
-	/// That's why we don't want this method to be exposed as `public`, 
-	/// but it's useful internally.
+	/// - Returns: signal对象
 	internal func startAndRetrieveSignal() -> Signal<Value, Error> {
 		var result: Signal<Value, Error>!
 		self.startWithSignal { signal, _ in
