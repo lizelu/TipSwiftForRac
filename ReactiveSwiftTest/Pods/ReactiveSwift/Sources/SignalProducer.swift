@@ -19,9 +19,6 @@ import Result
 public struct SignalProducer<Value, Error: Swift.Error> {
     
 	public typealias ProducedSignal = Signal<Value, Error>
-
-    //一个无返回值的闭包常量，该闭包有两个参数一个是Observer，另一个是CompositeDisposable，
-	private let startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void
     
     /// A producer for a Signal that will immediately complete without sending
     /// any values.
@@ -117,6 +114,9 @@ public struct SignalProducer<Value, Error: Swift.Error> {
     public init(values first: Value, _ second: Value, _ tail: Value...) {
         self.init([ first, second ] + tail)
     }
+    
+    //一个无返回值的闭包常量，该闭包有两个参数一个是Observer，另一个是CompositeDisposable，
+    private let startHandler: (Signal<Value, Error>.Observer, CompositeDisposable) -> Void
 
     /// 给startHandler赋值的构造器
     /// 该构造器的尾随闭包就是startHandler所执行的闭包体
