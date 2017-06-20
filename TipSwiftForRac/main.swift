@@ -75,10 +75,12 @@ class MyClass {
 
 let myClass1 = MyClass(des: "aa ")
 let myClass2 = MyClass(des: "bb")
-print(myClass1.add(other: myClass2).des)
+let desc = myClass1.add(other: myClass2).des
+print(desc)
 
-
+print("\n\n")
 //==============================================================================
+
 class MyClassProducer {
     var myClass1: MyClass
     var myClass2: MyClass
@@ -97,17 +99,21 @@ let myProducer1 = MyClassProducer(value1: "cc ", value2: "dd")
 
 let sum01 = myProducer1.add { myclass1 -> (MyClass) -> MyClass in
     return { myclass2 -> MyClass in
-        return MyClass(des:"closure" + myclass1.des + myclass2.des)
+        return MyClass(des:"closure：" + myclass1.des + myclass2.des)
     }
 }
 print(sum01.des)
 
+print("\n\n")
 //==============================================================================
 
 let myProducer2 = MyClassProducer(value1: "ee ", value2: "ff")
+
 let sum02 = myProducer2.add(closure: MyClass.add(other:))
+
 print(sum02.des)
 
+print("\n\n")
 
 
 

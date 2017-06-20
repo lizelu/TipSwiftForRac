@@ -273,6 +273,7 @@ extension SignalProducerProtocol where Error == NoError {
 }
 
 
+// MARK: - lift
 extension SignalProducerProtocol {
     
     /// 新的SignalProducer与原来的进行铰接，其实中间是通过一个新的Signal对象来进行桥接的
@@ -330,10 +331,7 @@ extension SignalProducerProtocol {
 		}
 	}
 
-	/// Left-associative lifting of a binary signal operator over producers.
-	/// That is, the receiver will be started before the argument producer. When
-	/// both producers are synchronous this order can be important depending on
-	/// the operator to generate correct results.
+
 	fileprivate func liftLeft<U, F, V, G>(_ transform: @escaping (Signal<Value, Error>) -> (Signal<U, F>) -> Signal<V, G>) -> (SignalProducer<U, F>) -> SignalProducer<V, G> {
 		return { otherProducer in
 			return SignalProducer { observer, outerDisposable in
