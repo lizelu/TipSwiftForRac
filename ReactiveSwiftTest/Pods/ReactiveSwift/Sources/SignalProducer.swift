@@ -322,7 +322,7 @@ extension SignalProducerProtocol {
 
 					otherProducer.startWithSignal { otherSignal, otherDisposable in
 						outerDisposable += otherDisposable
-
+                        
 						transform(signal)(otherSignal).observe(observer)
 					}
 				}
