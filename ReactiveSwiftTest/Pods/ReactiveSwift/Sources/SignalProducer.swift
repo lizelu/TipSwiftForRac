@@ -331,7 +331,6 @@ extension SignalProducerProtocol {
 		}
 	}
 
-
 	fileprivate func liftLeft<U, F, V, G>(_ transform: @escaping (Signal<Value, Error>) -> (Signal<U, F>) -> Signal<V, G>) -> (SignalProducer<U, F>) -> SignalProducer<V, G> {
 		return { otherProducer in
 			return SignalProducer { observer, outerDisposable in
