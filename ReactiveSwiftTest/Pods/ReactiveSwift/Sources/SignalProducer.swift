@@ -366,209 +366,48 @@ extension SignalProducerProtocol {
 		}
 	}
 
-	/// Map each value in the producer to a new value.
-	///
-	/// - parameters:
-	///   - transform: A closure that accepts a value and returns a different
-	///                value.
-	///
-	/// - returns: A signal producer that, when started, will send a mapped
-	///            value of `self.`
-	public func map<U>(_ transform: @escaping (Value) -> U) -> SignalProducer<U, Error> {
+    public func map<U>(_ transform: @escaping (Value) -> U) -> SignalProducer<U, Error> {
 		return lift { $0.map(transform) }
 	}
 
-	/// Map errors in the producer to a new error.
-	///
-	/// - parameters:
-	///   - transform: A closure that accepts an error object and returns a
-	///                different error.
-	///
-	/// - returns: A producer that emits errors of new type.
 	public func mapError<F>(_ transform: @escaping (Error) -> F) -> SignalProducer<Value, F> {
 		return lift { $0.mapError(transform) }
 	}
 
-	/// Maps each value in the producer to a new value, lazily evaluating the
-	/// supplied transformation on the specified scheduler.
-	///
-	/// - important: Unlike `map`, there is not a 1-1 mapping between incoming 
-	///              values, and values sent on the returned producer. If 
-	///              `scheduler` has not yet scheduled `transform` for 
-	///              execution, then each new value will replace the last one as 
-	///              the parameter to `transform` once it is finally executed.
-	///
-	/// - parameters:
-	///   - transform: The closure used to obtain the returned value from this
-	///                producer's underlying value.
-	///
-	/// - returns: A producer that, when started, sends values obtained using 
-	///            `transform` as this producer sends values.
-	public func lazyMap<U>(on scheduler: Scheduler, transform: @escaping (Value) -> U) -> SignalProducer<U, Error> {
+    public func lazyMap<U>(on scheduler: Scheduler, transform: @escaping (Value) -> U) -> SignalProducer<U, Error> {
 		return lift { $0.lazyMap(on: scheduler, transform: transform) }
 	}
 
-	/// Preserve only the values of the producer that pass the given predicate.
-	///
-	/// - parameters:
-	///   - predicate: A closure that accepts value and returns `Bool` denoting
-	///                whether value has passed the test.
-	///
-	/// - returns: A producer that, when started, will send only the values
-	///            passing the given predicate.
-	public func filter(_ predicate: @escaping (Value) -> Bool) -> SignalProducer<Value, Error> {
+    public func filter(_ predicate: @escaping (Value) -> Bool) -> SignalProducer<Value, Error> {
 		return lift { $0.filter(predicate) }
 	}
 
-	/// Applies `transform` to values from the producer and forwards values with non `nil` results unwrapped.
-	/// - parameters:
-	///   - transform: A closure that accepts a value from the `value` event and
-	///                returns a new optional value.
-	///
-	/// - returns: A producer that will send new values, that are non `nil` after the transformation.
 	public func filterMap<U>(_ transform: @escaping (Value) -> U?) -> SignalProducer<U, Error> {
 		return lift { $0.filterMap(transform) }
 	}
 	
-	/// Yield the first `count` values from the input producer.
-	///
-	/// - precondition: `count` must be non-negative number.
-	///
-	/// - parameters:
-	///   - count: A number of values to take from the signal.
-	///
-	/// - returns: A producer that, when started, will yield the first `count`
-	///            values from `self`.
-	public func take(first count: Int) -> SignalProducer<Value, Error> {
+    public func take(first count: Int) -> SignalProducer<Value, Error> {
 		return lift { $0.take(first: count) }
 	}
 
-	/// Yield an array of values when `self` completes.
-	///
-	/// - note: When `self` completes without collecting any value, it will send
-	///         an empty array of values.
-	///
-	/// - returns: A producer that, when started, will yield an array of values
-	///            when `self` completes.
-	public func collect() -> SignalProducer<[Value], Error> {
+    public func collect() -> SignalProducer<[Value], Error> {
 		return lift { $0.collect() }
 	}
 
-	/// Yield an array of values until it reaches a certain count.
-	///
-	/// - precondition: `count` must be greater than zero.
-	///
-	/// - note: When the count is reached the array is sent and the signal
-	///         starts over yielding a new array of values.
-	///
-	/// - note: When `self` completes any remaining values will be sent, the
-	///         last array may not have `count` values. Alternatively, if were
-	///         not collected any values will sent an empty array of values.
-	///
-	/// - returns: A producer that, when started, collects at most `count`
-	///            values from `self`, forwards them as a single array and
-	///            completes.
-	public func collect(count: Int) -> SignalProducer<[Value], Error> {
+    public func collect(count: Int) -> SignalProducer<[Value], Error> {
 		precondition(count > 0)
 		return lift { $0.collect(count: count) }
 	}
 
-	/// Yield an array of values based on a predicate which matches the values
-	/// collected.
-	///
-	/// - note: When `self` completes any remaining values will be sent, the
-	///         last array may not match `predicate`. Alternatively, if were not
-	///         collected any values will sent an empty array of values.
-	///
-	/// ````
-	/// let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
-	///
-	/// producer
-	///     .collect { values in values.reduce(0, combine: +) == 8 }
-	///     .startWithValues { print($0) }
-	///
-	/// observer.send(value: 1)
-	/// observer.send(value: 3)
-	/// observer.send(value: 4)
-	/// observer.send(value: 7)
-	/// observer.send(value: 1)
-	/// observer.send(value: 5)
-	/// observer.send(value: 6)
-	/// observer.sendCompleted()
-	///
-	/// // Output:
-	/// // [1, 3, 4]
-	/// // [7, 1]
-	/// // [5, 6]
-	/// ````
-	///
-	/// - parameters:
-	///   - predicate: Predicate to match when values should be sent (returning
-	///                `true`) or alternatively when they should be collected
-	///                (where it should return `false`). The most recent value
-	///                (`value`) is included in `values` and will be the end of
-	///                the current array of values if the predicate returns
-	///                `true`.
-	///
-	/// - returns: A producer that, when started, collects values passing the
-	///            predicate and, when `self` completes, forwards them as a
-	///            single array and complets.
-	public func collect(_ predicate: @escaping (_ values: [Value]) -> Bool) -> SignalProducer<[Value], Error> {
+    public func collect(_ predicate: @escaping (_ values: [Value]) -> Bool) -> SignalProducer<[Value], Error> {
 		return lift { $0.collect(predicate) }
 	}
 
-	/// Yield an array of values based on a predicate which matches the values
-	/// collected and the next value.
-	///
-	/// - note: When `self` completes any remaining values will be sent, the
-	///         last array may not match `predicate`. Alternatively, if no
-	///         values were collected an empty array will be sent.
-	///
-	/// ````
-	/// let (producer, observer) = SignalProducer<Int, NoError>.buffer(1)
-	///
-	/// producer
-	///     .collect { values, value in value == 7 }
-	///     .startWithValues { print($0) }
-	///
-	/// observer.send(value: 1)
-	/// observer.send(value: 1)
-	/// observer.send(value: 7)
-	/// observer.send(value: 7)
-	/// observer.send(value: 5)
-	/// observer.send(value: 6)
-	/// observer.sendCompleted()
-	///
-	/// // Output:
-	/// // [1, 1]
-	/// // [7]
-	/// // [7, 5, 6]
-	/// ````
-	///
-	/// - parameters:
-	///   - predicate: Predicate to match when values should be sent (returning
-	///                `true`) or alternatively when they should be collected
-	///                (where it should return `false`). The most recent value
-	///                (`vaule`) is not included in `values` and will be the
-	///                start of the next array of values if the predicate
-	///                returns `true`.
-	///
-	/// - returns: A signal that will yield an array of values based on a
-	///            predicate which matches the values collected and the next
-	///            value.
-	public func collect(_ predicate: @escaping (_ values: [Value], _ value: Value) -> Bool) -> SignalProducer<[Value], Error> {
+    public func collect(_ predicate: @escaping (_ values: [Value], _ value: Value) -> Bool) -> SignalProducer<[Value], Error> {
 		return lift { $0.collect(predicate) }
 	}
 
-	/// Forward all events onto the given scheduler, instead of whichever
-	/// scheduler they originally arrived upon.
-	///
-	/// - parameters:
-	///   - scheduler: A scheduler to deliver events on.
-	///
-	/// - returns: A producer that, when started, will yield `self` values on
-	///            provided scheduler.
-	public func observe(on scheduler: Scheduler) -> SignalProducer<Value, Error> {
+    public func observe(on scheduler: Scheduler) -> SignalProducer<Value, Error> {
 		return lift { $0.observe(on: scheduler) }
 	}
 
