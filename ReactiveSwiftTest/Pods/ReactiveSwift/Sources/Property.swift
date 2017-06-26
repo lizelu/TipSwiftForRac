@@ -513,6 +513,40 @@ public final class Property<Value>: PropertyProtocol {
 		_producer = { property.producer }
 		_signal = { property.signal }
 	}
+    
+    /// Initialize a composed property from a producer that promises to send
+    /// at least one value synchronously in its start handler before sending any
+    /// subsequent event.
+    ///
+    /// - important: The producer and the signal of the created property would
+    ///              complete only when the `unsafeProducer` completes.
+    ///
+    /// - warning: If the producer fails its promise, a fatal error would be
+    ///            raised.
+    ///
+    /// - parameters:
+    ///   - unsafeProducer: The composed producer for creating the property.
+    private init(unsafeProducer: SignalProducer<Value, NoError>) {
+        // Share a replayed producer with `self.producer` and `self.signal` so
+        // they see a consistent view of the `self.value`.
+        // https://github.com/ReactiveCocoa/ReactiveCocoa/pull/3042
+        let producer = unsafeProducer.replayLazily(upTo: 1)
+        
+        let atomic = Atomic<Value?>(nil)
+        disposable = producer.startWithValues { atomic.value = $0 }
+        
+        // Verify that an initial is sent. This is friendlier than deadlocking
+        // in the event that one isn't.
+        guard atomic.value != nil else {
+            fatalError("A producer promised to send at least one value. Received none.")
+        }
+        
+        _value = { atomic.value! }
+        _producer = { producer }
+        _signal = { producer.startAndRetrieveSignal() }
+    }
+    
+
 
 	/// Initializes a composed property which reflects the given property.
 	///
@@ -573,39 +607,6 @@ public final class Property<Value>: PropertyProtocol {
 	fileprivate convenience init<P1: PropertyProtocol, P2: PropertyProtocol>(_ firstProperty: P1, _ secondProperty: P2, transform: @escaping (SignalProducer<P1.Value, NoError>) -> (SignalProducer<P2.Value, NoError>) -> SignalProducer<Value, NoError>) {
 		self.init(unsafeProducer: transform(firstProperty.producer)(secondProperty.producer))
 	}
-
-	/// Initialize a composed property from a producer that promises to send
-	/// at least one value synchronously in its start handler before sending any
-	/// subsequent event.
-	///
-	/// - important: The producer and the signal of the created property would
-	///              complete only when the `unsafeProducer` completes.
-	///
-	/// - warning: If the producer fails its promise, a fatal error would be
-	///            raised.
-	///
-	/// - parameters:
-	///   - unsafeProducer: The composed producer for creating the property.
-	private init(unsafeProducer: SignalProducer<Value, NoError>) {
-		// Share a replayed producer with `self.producer` and `self.signal` so
-		// they see a consistent view of the `self.value`.
-		// https://github.com/ReactiveCocoa/ReactiveCocoa/pull/3042
-		let producer = unsafeProducer.replayLazily(upTo: 1)
-
-		let atomic = Atomic<Value?>(nil)
-		disposable = producer.startWithValues { atomic.value = $0 }
-
-		// Verify that an initial is sent. This is friendlier than deadlocking
-		// in the event that one isn't.
-		guard atomic.value != nil else {
-			fatalError("A producer promised to send at least one value. Received none.")
-		}
-
-		_value = { atomic.value! }
-		_producer = { producer }
-		_signal = { producer.startAndRetrieveSignal() }
-	}
-
 	deinit {
 		disposable?.dispose()
 	}

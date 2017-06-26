@@ -125,6 +125,7 @@ internal struct UnsafeAtomicState<State: RawRepresentable>: AtomicStateProtocol 
 #endif
 }
 
+//Posix互斥锁
 final class PosixThreadMutex: NSLocking {
 	private var mutex = pthread_mutex_t()
 
@@ -157,7 +158,7 @@ public final class Atomic<Value>: AtomicProtocol {
 	/// Atomically get or set the value of the variable.
 	public var value: Value {
 		get {
-			return withValue { $0 }
+			return withValue { $0 }  //return _value
 		}
 
 		set(newValue) {
@@ -220,7 +221,7 @@ public final class Atomic<Value>: AtomicProtocol {
 }
 
 
-/// An atomic variable which uses a recursive lock.
+//使用递归锁的原子操作
 internal final class RecursiveAtomic<Value>: AtomicProtocol {
 	private let lock: NSRecursiveLock
 	private var _value: Value

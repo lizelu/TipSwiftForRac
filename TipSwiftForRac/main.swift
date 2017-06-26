@@ -60,63 +60,90 @@ func testAutoclosure() {
 }
 //testAutoclosure()
 
+func testClosureType() {
+    class MyClass {
+        var des = ""
+        
+        init(des: String) {
+            self.des = des
+        }
+        
+        func add(other: MyClass) -> MyClass {
+            return MyClass(des:"add: " + self.des + other.des)
+        }
+    }
+    
+    let myClass1 = MyClass(des: "aa ")
+    let myClass2 = MyClass(des: "bb")
+    let desc = myClass1.add(other: myClass2).des
+    print(desc)
+    
+    print("\n\n")
+    //==============================================================================
+    
+    class MyClassProducer {
+        var myClass1: MyClass
+        var myClass2: MyClass
+        
+        init(value1: String, value2: String) {
+            myClass1 = MyClass(des: value1)
+            myClass2 = MyClass(des: value2)
+        }
+        
+        func add(closure: @escaping (MyClass) -> (MyClass) -> MyClass) ->MyClass {
+            return closure(myClass1)(myClass2)
+        }
+    }
+    
+    let myProducer1 = MyClassProducer(value1: "cc ", value2: "dd")
+    
+    let sum01 = myProducer1.add { myclass1 -> (MyClass) -> MyClass in
+        return { myclass2 -> MyClass in
+            return MyClass(des:"closure：" + myclass1.des + myclass2.des)
+        }
+    }
+    print(sum01.des)
+    
+    print("\n\n")
+    //==============================================================================
+    
+    let myProducer2 = MyClassProducer(value1: "ee ", value2: "ff")
+    
+    let sum02 = myProducer2.add(closure: MyClass.add(other:))
+    
+    print(sum02.des)
+    
+    print("\n\n")
 
-class MyClass {
-    var des = ""
-    
-    init(des: String) {
-        self.des = des
-    }
-    
-    func add(other: MyClass) -> MyClass {
-        return MyClass(des:"add: " + self.des + other.des)
-    }
 }
 
-let myClass1 = MyClass(des: "aa ")
-let myClass2 = MyClass(des: "bb")
-let desc = myClass1.add(other: myClass2).des
-print(desc)
 
-print("\n\n")
-//==============================================================================
 
-class MyClassProducer {
-    var myClass1: MyClass
-    var myClass2: MyClass
-    
-    init(value1: String, value2: String) {
-        myClass1 = MyClass(des: value1)
-        myClass2 = MyClass(des: value2)
+
+func deferTest() {
+    print("aaa")
+    defer {
+        print("bbb")
     }
-    
-    func add(closure: @escaping (MyClass) -> (MyClass) -> MyClass) ->MyClass {
-        return closure(myClass1)(myClass2)
-    }
+    print("ccc")
 }
 
-let myProducer1 = MyClassProducer(value1: "cc ", value2: "dd")
+//deferTest()
 
-let sum01 = myProducer1.add { myclass1 -> (MyClass) -> MyClass in
-    return { myclass2 -> MyClass in
-        return MyClass(des:"closure：" + myclass1.des + myclass2.des)
+//let lock = NSLock()
+let lock = NSRecursiveLock()
+
+func recursiveMethod(value: Int) {
+    lock.lock()
+    if value > 0 {
+        print("value = \(value)")
+        sleep(1)
+        
+        recursiveMethod(value: value-1)
     }
+    lock.unlock()
 }
-print(sum01.des)
 
-print("\n\n")
-//==============================================================================
-
-let myProducer2 = MyClassProducer(value1: "ee ", value2: "ff")
-
-let sum02 = myProducer2.add(closure: MyClass.add(other:))
-
-print(sum02.des)
-
-print("\n\n")
-
-
-
-
+recursiveMethod(value: 10)
 
 
