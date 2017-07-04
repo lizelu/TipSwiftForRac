@@ -121,26 +121,59 @@ func testClosureType() {
 
 
 func deferTest() {
-    print("aaa")
+    print("a")
+    
     defer {
-        print("bbb")
+        print("b")
     }
-    print("ccc")
+    
+    print("c")
+    
+    defer {
+        print("d")
+    }
 }
 
 //deferTest()
 
+let lock1 = NSLock()
+func testLock() {
+    lock1.lock()
+    
+        lock1.lock()
+            print("a")
+        lock1.unlock()
+    
+    lock1.unlock()
+}
+//testLock()  //deadlock
+
+
+let lock2 = NSRecursiveLock()
+
+func testRecursiveLock() {
+    lock2.lock()
+    
+        lock2.lock()
+            print("b")
+        lock2.unlock()
+    
+    lock2.unlock()
+}
+//testRecursiveLock()
+
+
 //let lock = NSLock()
+
 let lock = NSRecursiveLock()
 
 func recursiveMethod(value: Int) {
     lock.lock()
-    if value > 0 {
-        print("value = \(value)")
-        sleep(1)
-        
-        recursiveMethod(value: value-1)
-    }
+        if value > 0 {
+            recursiveMethod(value: value-1)
+            print("value = \(value)")
+            sleep(1)
+        }
     lock.unlock()
 }
 

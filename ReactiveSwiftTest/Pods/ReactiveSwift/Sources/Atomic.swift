@@ -150,12 +150,12 @@ final class PosixThreadMutex: NSLocking {
 	}
 }
 
-/// An atomic variable.
+/// An atomic variable. Posix互斥锁
 public final class Atomic<Value>: AtomicProtocol {
 	private let lock: PosixThreadMutex
 	private var _value: Value
 
-	/// Atomically get or set the value of the variable.
+	/// 通过原子操作，获取Value的值
 	public var value: Value {
 		get {
 			return withValue { $0 }  //return _value
@@ -166,21 +166,11 @@ public final class Atomic<Value>: AtomicProtocol {
 		}
 	}
 
-	/// Initialize the variable with the given initial value.
-	/// 
-	/// - parameters:
-	///   - value: Initial value for `self`.
 	public init(_ value: Value) {
 		_value = value
 		lock = PosixThreadMutex()
 	}
 
-	/// Atomically modifies the variable.
-	///
-	/// - parameters:
-	///   - action: A closure that takes the current value.
-	///
-	/// - returns: The result of the action.
 	@discardableResult
 	public func modify<Result>(_ action: (inout Value) throws -> Result) rethrows -> Result {
 		lock.lock()
@@ -189,13 +179,6 @@ public final class Atomic<Value>: AtomicProtocol {
 		return try action(&_value)
 	}
 	
-	/// Atomically perform an arbitrary action using the current value of the
-	/// variable.
-	///
-	/// - parameters:
-	///   - action: A closure that takes the current value.
-	///
-	/// - returns: The result of the action.
 	@discardableResult
 	public func withValue<Result>(_ action: (Value) throws -> Result) rethrows -> Result {
 		lock.lock()
@@ -204,12 +187,6 @@ public final class Atomic<Value>: AtomicProtocol {
 		return try action(_value)
 	}
 
-	/// Atomically replace the contents of the variable.
-	///
-	/// - parameters:
-	///   - newValue: A new value for the variable.
-	///
-	/// - returns: The old value.
 	@discardableResult
 	public func swap(_ newValue: Value) -> Value {
 		return modify { (value: inout Value) in
