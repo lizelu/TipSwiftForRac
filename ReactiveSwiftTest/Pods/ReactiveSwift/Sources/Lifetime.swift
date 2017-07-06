@@ -40,7 +40,7 @@ public final class Lifetime {
     /// 往ended信号量中添加一个观察者，该观察者之监听
     /// isTerminating （.failed, .completed, .interrupted）事件
     /// - Parameter action: isTerminating事件对外的闭包回调
-    /// - Returns: <#return value description#>
+    /// - Returns: return value description
     @discardableResult
 	public func observeEnded(_ action: @escaping () -> Void) -> Disposable? {
         

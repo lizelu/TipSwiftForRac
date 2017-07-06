@@ -8,25 +8,10 @@ import enum Result.NoError
 public protocol PropertyProtocol: class, BindingSource {
 	associatedtype Value
 
-	/// The current value of the property.
 	var value: Value { get }
 
-	/// The values producer of the property.
-	///
-	/// It produces a signal that sends the property's current value,
-	/// followed by all changes over time. It completes when the property
-	/// has deinitialized, or has no further change.
-	///
-	/// - note: If `self` is a composed property, the producer would be
-	///         bound to the lifetime of its sources.
-	var producer: SignalProducer<Value, NoError> { get }
+    var producer: SignalProducer<Value, NoError> { get }
 
-	/// A signal that will send the property's changes over time. It
-	/// completes when the property has deinitialized, or has no further
-	/// change.
-	///
-	/// - note: If `self` is a composed property, the signal would be
-	///         bound to the lifetime of its sources.
 	var signal: Signal<Value, NoError> { get }
 }
 
@@ -466,26 +451,14 @@ public final class Property<Value>: PropertyProtocol {
 	private let _producer: () -> SignalProducer<Value, NoError>
 	private let _signal: () -> Signal<Value, NoError>
 
-	/// The current value of the property.
 	public var value: Value {
 		return _value()
 	}
 
-	/// A producer for Signals that will send the property's current
-	/// value, followed by all changes over time, then complete when the
-	/// property has deinitialized or has no further changes.
-	///
-	/// - note: If `self` is a composed property, the producer would be
-	///         bound to the lifetime of its sources.
 	public var producer: SignalProducer<Value, NoError> {
 		return _producer()
 	}
 
-	/// A signal that will send the property's changes over time, then
-	/// complete when the property has deinitialized or has no further changes.
-	///
-	/// - note: If `self` is a composed property, the signal would be
-	///         bound to the lifetime of its sources.
 	public var signal: Signal<Value, NoError> {
 		return _signal()
 	}
