@@ -141,4 +141,19 @@ class ObseverTestViewController: UIViewController {
         }
         print(mapErrorEvent.error!.display())
     }
+    
+    @IBAction func tapMutableProperty(_ sender: Any) {
+        //创建可变的属性
+        let mutableProperty = MutableProperty(1)
+        
+        mutableProperty.signal.observeValues{ value in
+            print(value)
+        }
+        
+        
+        print(mutableProperty.value)
+        print(mutableProperty.value)
+        print(mutableProperty.value)
+    }
+    
 }

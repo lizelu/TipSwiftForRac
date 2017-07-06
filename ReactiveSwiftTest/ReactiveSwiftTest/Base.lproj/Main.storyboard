@@ -138,6 +138,14 @@
                                     <action selector="tapSentValueButton:" destination="TJD-2M-tKf" eventType="touchUpInside" id="GeO-QD-sKh"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R8x-OZ-DDf">
+                                <rect key="frame" x="18" y="327" width="115" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="MutableProperty"/>
+                                <connections>
+                                    <action selector="tapMutableProperty:" destination="TJD-2M-tKf" eventType="touchUpInside" id="uCZ-35-lHJ"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>

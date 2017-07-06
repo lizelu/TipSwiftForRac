@@ -593,11 +593,7 @@ public final class MutableProperty<Value>: ComposableMutablePropertyProtocol {
 	private let observer: Signal<Value, NoError>.Observer
 	private let atomic: RecursiveAtomic<Value>
 
-	/// The current value of the property.
-	///
-	/// Setting this to a new value will notify all observers of `signal`, or
-	/// signals created using `producer`.
-	public var value: Value {
+    public var value: Value {
 		get {
 			return atomic.withValue { $0 }
 		}
@@ -610,69 +606,51 @@ public final class MutableProperty<Value>: ComposableMutablePropertyProtocol {
 	/// The lifetime of the property.
 	public let lifetime: Lifetime
 
-	/// A signal that will send the property's changes over time,
-	/// then complete when the property has deinitialized.
 	public let signal: Signal<Value, NoError>
 
-	/// A producer for Signals that will send the property's current value,
-	/// followed by all changes over time, then complete when the property has
-	/// deinitialized.
 	public var producer: SignalProducer<Value, NoError> {
 		return SignalProducer { [atomic, signal] producerObserver, producerDisposable in
 			atomic.withValue { value in
-				producerObserver.send(value: value)
+				producerObserver.send(value: value)     //获取值时发出value信号量
 				producerDisposable += signal.observe(Observer(mappingInterruptedToCompleted: producerObserver))
 			}
 		}
 	}
-
-	/// Initializes a mutable property that first takes on `initialValue`
-	///
-	/// - parameters:
-	///   - initialValue: Starting value for the mutable property.
+    
 	public init(_ initialValue: Value) {
 		(signal, observer) = Signal.pipe()
 		token = Lifetime.Token()
 		lifetime = Lifetime(token)
-
-		/// Need a recursive lock around `value` to allow recursive access to
-		/// `value`. Note that recursive sets will still deadlock because the
-		/// underlying producer prevents sending recursive events.
 		atomic = RecursiveAtomic(initialValue,
 		                          name: "org.reactivecocoa.ReactiveSwift.MutableProperty",
 		                          didSet: observer.send(value:))
 	}
 
-	/// Atomically replaces the contents of the variable.
+	/// 赋值
 	///
-	/// - parameters:
-	///   - newValue: New property value.
-	///
-	/// - returns: The previous property value.
+	/// - Parameter newValue: 新值
+	/// - Returns: 旧值
 	@discardableResult
 	public func swap(_ newValue: Value) -> Value {
 		return atomic.swap(newValue)
 	}
 
-	/// Atomically modifies the variable.
+	/// 修改值
 	///
-	/// - parameters:
-	///   - action: A closure that accepts old property value and returns a new
-	///             property value.
-	///
-	/// - returns: The result of the action.
+	/// - Parameter action: <#action description#>
+	/// - Returns: <#return value description#>
+	/// - Throws: <#throws value description#>
 	@discardableResult
 	public func modify<Result>(_ action: (inout Value) throws -> Result) rethrows -> Result {
 		return try atomic.modify(action)
 	}
 
-	/// Atomically performs an arbitrary action using the current value of the
-	/// variable.
+
+	/// 获取值
 	///
-	/// - parameters:
-	///   - action: A closure that accepts current property value.
-	///
-	/// - returns: the result of the action.
+	/// - Parameter action: <#action description#>
+	/// - Returns: <#return value description#>
+	/// - Throws: <#throws value description#>
 	@discardableResult
 	public func withValue<Result>(action: (Value) throws -> Result) rethrows -> Result {
 		return try atomic.withValue(action)
