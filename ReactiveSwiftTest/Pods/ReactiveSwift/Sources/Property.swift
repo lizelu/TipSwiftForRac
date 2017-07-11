@@ -589,26 +589,26 @@ public final class Property<Value>: PropertyProtocol {
 ///
 /// Instances of this class are thread-safe.
 public final class MutableProperty<Value>: ComposableMutablePropertyProtocol {
-	private let token: Lifetime.Token
-	private let observer: Signal<Value, NoError>.Observer
-	private let atomic: RecursiveAtomic<Value>
+    
+	private let token: Lifetime.Token                       //标记生命周期的Token
+	private let observer: Signal<Value, NoError>.Observer   //发送事件的Observer
+	private let atomic: RecursiveAtomic<Value>              //加有递归锁的原子操作
 
-    public var value: Value {
+    public var value: Value {  //Property中存储的值
 		get {
 			return atomic.withValue { $0 }
 		}
 
 		set {
-			swap(newValue)
+			swap(newValue) //atomic.swap(newValue)
 		}
 	}
 
 	/// The lifetime of the property.
 	public let lifetime: Lifetime
+	public let signal: Signal<Value, NoError>   //Property中想信号量
 
-	public let signal: Signal<Value, NoError>
-
-	public var producer: SignalProducer<Value, NoError> {
+	public var producer: SignalProducer<Value, NoError> {   //内置SignalProducer
 		return SignalProducer { [atomic, signal] producerObserver, producerDisposable in
 			atomic.withValue { value in
 				producerObserver.send(value: value)     //获取值时发出value信号量
@@ -623,7 +623,7 @@ public final class MutableProperty<Value>: ComposableMutablePropertyProtocol {
 		lifetime = Lifetime(token)
 		atomic = RecursiveAtomic(initialValue,
 		                          name: "org.reactivecocoa.ReactiveSwift.MutableProperty",
-		                          didSet: observer.send(value:))
+		                          didSet: observer.send(value:))  //被赋值后发送Value事件
 	}
 
 	/// 赋值
